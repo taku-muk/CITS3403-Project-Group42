@@ -57,6 +57,30 @@ def logout():
     return redirect(url_for('main.login'))
 
 
-
+@main.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+    form = ExpenseForm()
+    if form.validate_on_submit():
+        for field_name in [
+            'rent', 'utilities', 'groceries', 'eating_out', 'transport',
+            'entertainment', 'subscriptions', 'health', 'education', 'insurance',
+            'debt_repayment', 'travel', 'gifts_donations', 'savings_investments',
+            'pets', 'other'
+        ]:
+            amount = getattr(form, field_name).data
+            if amount and amount > 0:
+                expense = Expense(
+                    user_id=current_user.id,
+                    month=form.month.data,
+                    category=form[field_name].label.text,
+                    amount=amount,
+                    city=form.city.data
+                )
+                db.session.add(expense)
+        db.session.commit()
+        flash("Expenses uploaded!")
+        return redirect(url_for('main.visualise'))
+    return render_template('upload.html', form=form)
 
 
