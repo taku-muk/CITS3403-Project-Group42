@@ -17,7 +17,7 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    from .routes import main as main_blueprint
+    from .routes_new  import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
     return app
