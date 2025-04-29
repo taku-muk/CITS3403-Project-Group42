@@ -1,207 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Finance Analysis – CostScope</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background: #080710;
-            font-family: 'Poppins', sans-serif;
-            color: white;
-            text-align: center;
-            padding: 2rem;
-        }
-        canvas {
-            margin-top: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1rem;
-            max-width: 100%;
-            height: auto;
-        }
-        a {
-            display: block;
-            margin-top: 2rem;
-            color: #a2c8ff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
 
-    <h1>Spending Breakdown by Category</h1>
+  <body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
+    <!-- wrapper -->
+    <div class="w-full max-w-6xl flex flex-col pt-32">
+      <!-- title -->
+      <h1 class="text-5xl sm:text-6xl font-semibold mb-10">Your Dashboard</h1>
 
-    <canvas id="categoryChart" width="400" height="400"></canvas>
 
-    <a href="{{ url_for('main.home') }}">← Back to Home</a>
+      <!-- EVERYTHING BELOW THIS LINE SHOULD SIT CLOSER TOGETHER -->
+      <div class="flex flex-col gap-8">
+        <!-- top cards -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          <div
+            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
+          >
+            <p class="text-[#838383] text-sm">Total Income</p>
+            <h2 class="text-2xl font-bold">$500</h2>
+          </div>
 
-    <script>
-        // Safely handle empty data
-        const chartLabels = {{ labels | safe }} || [];
-        const chartValues = {{ values | safe }} || [];
+          <div
+            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
+          >
+            <p class="text-[#838383] text-sm">Total Expenditure</p>
+            <h2 class="text-2xl font-bold">$150</h2>
+          </div>
 
-        if (chartLabels.length === 0 || chartValues.length === 0) {
-            document.getElementById('categoryChart').style.display = 'none';
-            document.body.insertAdjacentHTML('beforeend', '<p>No data available to display.</p>');
-        } else {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        label: 'Spending by Category',
-                        data: chartValues,
-                        backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                            '#9966FF', '#FF9F40', '#5A9', '#DB4437',
-                            '#0F9D58', '#AB47BC', '#F4B400', '#00ACC1'
-                        ],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { labels: { color: 'white' } }
-                    }
-                }
-            });
-        }
-    </script>
+          <div
+            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
+          >
+            <p class="text-[#838383] text-sm">Net Income</p>
+            <h2 class="text-2xl font-bold">$350</h2>
+          </div>
 
-    <h2 style="margin-top: 3rem;">📅 Total Monthly Spending</h2>
-    <canvas id="monthlyChart" width="500" height="300"></canvas>
+          <div
+            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
+          >
+            <p class="text-[#838383] text-sm">Run Rate</p>
+            <h2 class="text-2xl font-bold">2.5&nbsp;Months</h2>
+          </div>
+        </div>
 
-    <script>
-        // Use data from Python
-        const months = {{ months | safe }};
-        const monthlyTotals = {{ monthly_totals | safe }};
+        <!-- middle placeholders -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div
+            class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex items-center justify-center h-80"
+          >
+            <h2 class="text-[#838383] text-xl">[Cash-flow Ring Placeholder]</h2>
+          </div>
+          <div
+            class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex items-center justify-center h-80"
+          >
+            <h2 class="text-[#838383] text-xl">
+              [Expenses Breakdown Placeholder]
+            </h2>
+          </div>
+        </div>
 
-        const ctxLine = document.getElementById('monthlyChart').getContext('2d');
-        new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [{
-                    label: 'Total Spending ($)',
-                    data: monthlyTotals,
-                    borderColor: '#36A2EB',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                scales: {
-                    x: { ticks: { color: 'white' } },
-                    y: { ticks: { color: 'white' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white' } }
-                }
-            }
-        });
-    </script>
+        <!-- assets & liabilities -->
+        <div
+          class="bg-[#151515] p-6 rounded-xl border border-[#333] space-y-6"
+        >
+          <h2 class="text-2xl font-bold">Assets and Liabilities</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+              class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4"
+            >
+              <p class="text-[#838383] text-sm">Savings</p>
+              <h3 class="text-xl font-bold">$12,000</h3>
+              <div class="w-full h-2 bg-[#151515] rounded-full">
+                <div class="bg-white h-2 rounded-full" style="width: 70%"></div>
+              </div>
+            </div>
 
-    <h2 style="margin-top: 3rem;">🔥 Top 3 Spending Categories</h2>
-    <canvas id="topChart" width="500" height="300"></canvas>
+            <div
+              class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4"
+            >
+              <p class="text-[#838383] text-sm">Investments</p>
+              <h3 class="text-xl font-bold">$5,000</h3>
+              <div class="w-full h-2 bg-[#151515] rounded-full">
+                <div class="bg-white h-2 rounded-full" style="width: 40%"></div>
+              </div>
+            </div>
 
-    <script>
-        const topLabels = {{ top_labels | safe }};
-        const topValues = {{ top_values | safe }};
-
-        const ctxTop = document.getElementById('topChart').getContext('2d');
-        new Chart(ctxTop, {
-            type: 'bar',
-            data: {
-                labels: topLabels,
-                datasets: [{
-                    label: 'Amount Spent ($)',
-                    data: topValues,
-                    backgroundColor: ['#ff6b6b', '#ffa502', '#1e90ff']
-                }]
-            },
-            options: {
-                scales: {
-                    x: { ticks: { color: 'white' } },
-                    y: { ticks: { color: 'white' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white' } }
-                }
-            }
-        });
-    </script>
-
-    <div style="margin-top: 1rem; color: #aaa;">
-        {% if top_labels %}
-        <p>🏆 <strong>{{ top_labels[0] }}</strong> made up the largest share of your spending.</p>
-        {% endif %}
+            <div
+              class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4"
+            >
+              <p class="text-[#838383] text-sm">Debt</p>
+              <h3 class="text-xl font-bold">$6,534.56</h3>
+              <div class="w-full h-2 bg-[#151515] rounded-full">
+                <div class="bg-white h-2 rounded-full" style="width: 50%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /assets & liabilities -->
+      </div>
     </div>
-
-    <h2 style="margin-top: 3rem;">📊 Budget vs. Actual Spending</h2>
-    <canvas id="budgetChart" width="500" height="300"></canvas>
-
-    <script>
-        const categories = {{ categories_for_budget | safe }};
-        const actualData = {{ actual | safe }};
-        const budgetData = {{ budget | safe }};
-
-        const ctxBudget = document.getElementById('budgetChart').getContext('2d');
-        new Chart(ctxBudget, {
-            type: 'bar',
-            data: {
-                labels: categories,
-                datasets: [
-                    {
-                        label: 'Actual Spending ($)',
-                        data: actualData,
-                        backgroundColor: '#36A2EB'
-                    },
-                    {
-                        label: 'Budget ($)',
-                        data: budgetData,
-                        backgroundColor: '#ff6384'
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    x: { ticks: { color: 'white' } },
-                    y: { ticks: { color: 'white' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white' } }
-                }
-            }
-        });
-    </script>
-
-    <h2 style="margin-top: 3rem;">⚖️ Needs vs Wants</h2>
-    <canvas id="needsWantsChart" width="500" height="300"></canvas>
-
-    <script>
-        const needsWantsCtx = document.getElementById('needsWantsChart').getContext('2d');
-        new Chart(needsWantsCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Needs', 'Wants'],
-                datasets: [{
-                    label: 'Spending Type',
-                    data: [{{ needs_total }}, {{ wants_total }}],
-                    backgroundColor: ['#2ecc71', '#e74c3c']
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: { labels: { color: 'white' } }
-                }
-            }
-        });
-    </script>  
-</body>
+    <!-- /wrapper -->
+  </body>
 </html>
