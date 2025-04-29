@@ -12,22 +12,28 @@
   <style>
     input:-webkit-autofill {
       -webkit-box-shadow: 0 0 0 1000px #000 inset!important;
-      -webkit-text-fill-color:#fff!important;
+      -webkit-text-fill-color: #fff!important;
     }
   </style>
 </head>
 
-<body class="bg-black text-white min-h-screen flex flex-col">
+<body class="bg-black text-white min-h-screen flex flex-col relative">
 
-  <!-- Logo -->
-  <div class="absolute top-6 left-20 flex items-center gap-3 z-10">
+  <!-- Back-to-Home Button -->
+  <a href="{{ url_for('main.home') }}"
+     class="fixed top-6 right-6 text-gray-400 hover:text-white text-sm font-semibold transition">
+    ← Home
+  </a>
+
+  <!-- Logo (clickable) -->
+  <a href="{{ url_for('main.home') }}" class="absolute top-6 left-20 flex items-center gap-3 z-10 hover:opacity-80 cursor-pointer transition">
     <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24"
          stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M20 12v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/>
       <path d="M18 12h.01" />
     </svg>
     <strong class="text-2xl font-bold">CostScope</strong>
-  </div>
+  </a>
 
   <!-- Card -->
   <main class="flex-grow flex items-center justify-center px-4 pt-16 relative z-10">
@@ -53,7 +59,7 @@
           {{ form.username(class_="w-full px-4 py-2 bg-white bg-opacity-10 rounded placeholder-gray-400") }}
         </div>
 
-        <!-- Email (if your RegisterForm has it) -->
+        <!-- Email (optional) -->
         {% if form.email %}
         <div>
           {{ form.email.label(class_="block text-sm mb-1") }}
@@ -67,7 +73,7 @@
           {{ form.password(class_="w-full px-4 py-2 bg-white bg-opacity-10 rounded placeholder-gray-400") }}
         </div>
 
-        <!-- Confirm password -->
+        <!-- Confirm Password (optional) -->
         {% if form.confirm %}
         <div>
           {{ form.confirm.label(class_="block text-sm mb-1") }}
