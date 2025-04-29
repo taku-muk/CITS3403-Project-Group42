@@ -5,53 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login | CostScope</title>
 
-  <!-- Tailwind 2 CDN -->
+  <!-- Tailwind 2 -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-  <!-- Style overrides -->
   <style>
-    input:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0 1000px #000 inset !important;
-      -webkit-text-fill-color: #fff !important;
+    /* keep your overrides */
+    input:-webkit-autofill{
+      -webkit-box-shadow: 0 0 0 1000px #000 inset!important;
+      -webkit-text-fill-color:#fff!important;
     }
-
-    .bottom-glow {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 350px;
-  background: radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
-  z-index: -1;
-  pointer-events: none;
-}
-
-
-
+    .bottom-glow{
+      position:absolute;bottom:0;width:100%;height:350px;
+      background:radial-gradient(ellipse at bottom,rgba(59,130,246,.3)0%,transparent 70%);
+      z-index:-1;pointer-events:none;
+    }
   </style>
 </head>
 
-<body class="bg-black text-white min-h-screen flex flex-col relative ">
+<body class="bg-black text-white min-h-screen flex flex-col relative">
 
-<!-- Logo -->
-<div class="absolute top-6 left-20 flex items-center gap-3 z-10">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none"
-       viewBox="0 0 24 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-       aria-hidden="true" focusable="false">
-    <path d="M20 12v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" />
-    <path d="M18 12h.01" />
-  </svg>
-  <strong class="text-2xl font-bold">CostScope</strong>
-</div>
+  <!-- 1. BACK-TO-HOME BUTTON (always on top) -->
+  <a href="{{ url_for('main.home') }}"
+  class="fixed top-6 right-6 text-gray-400 hover:text-white text-sm font-semibold transition">
+ ← Home
+</a>
 
 
-  <!-- Card -->
-  <main class="flex-grow flex items-center justify-center px-4 pt-13 relative z-10">
+  <!-- 2. LOGO (also links home) -->
+  <a href="{{ url_for('main.home') }}"
+     class="absolute top-6 left-6 flex items-center gap-2 hover:opacity-80 cursor-pointer">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none"
+         viewBox="0 0 24 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 12v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/>
+      <path d="M18 12h.01"/>
+    </svg>
+    <span class="text-2xl font-bold">CostScope</span>
+  </a>
 
-    <div class="w-full max-w-sm bg-white bg-opacity-5 backdrop-blur-md p-8 rounded-xl shadow-xl">
+  <!-- 3. LOGIN CARD -->
+  <main class="flex-grow flex items-center justify-center px-4 mt-24">
+    <div class="w-full max-w-sm bg-white bg-opacity-5 backdrop-blur-md p-8
+                rounded-xl shadow-xl">
 
       <h1 class="text-3xl font-semibold text-center mb-8">Login</h1>
 
-      <!-- Flash messages -->
       {% with messages = get_flashed_messages() %}
         {% if messages %}
           <div class="bg-red-500 text-white text-sm p-3 rounded mb-6 text-center">
@@ -63,13 +60,11 @@
       <form method="POST" action="{{ url_for('main.login') }}" class="space-y-6">
         {{ form.hidden_tag() }}
 
-        <!-- Username -->
         <div>
           {{ form.username.label(class_="block text-sm mb-1") }}
           {{ form.username(class_="w-full px-4 py-2 bg-white bg-opacity-10 rounded placeholder-gray-400") }}
         </div>
 
-        <!-- Password -->
         <div>
           {{ form.password.label(class_="block text-sm mb-1") }}
           {{ form.password(class_="w-full px-4 py-2 bg-white bg-opacity-10 rounded placeholder-gray-400") }}
@@ -78,20 +73,17 @@
         {{ form.submit(class_="w-full bg-white text-black font-semibold py-2 rounded hover:bg-gray-200 transition") }}
       </form>
 
-      <!-- Sign-up link -->
       <p class="mt-6 text-center text-sm text-gray-400">
         Don’t have an account?
         <a href="{{ url_for('main.register') }}" class="text-blue-400 hover:underline">Sign up</a>
       </p>
 
-      <!-- Divider -->
       <div class="flex items-center my-6">
         <div class="flex-grow h-px bg-gray-600"></div>
         <span class="px-3 text-sm text-gray-400">OR</span>
         <div class="flex-grow h-px bg-gray-600"></div>
       </div>
 
-      <!-- Google OAuth button -->
       <a href="/auth/google"
          class="w-full flex items-center justify-center gap-2 py-2 border border-gray-600 rounded hover:bg-gray-800 transition">
         <img src="https://www.svgrepo.com/show/355037/google.svg" class="w-5 h-5" alt="Google">
@@ -99,10 +91,9 @@
       </a>
 
       <p class="mt-10 text-center text-xs text-gray-500">
-        Terms of Use&nbsp;|&nbsp;Privacy Policy
+        Terms of Use | Privacy Policy
       </p>
     </div>
   </main>
-
 </body>
 </html>

@@ -49,14 +49,29 @@
           
         <!-- Right: Login + Button -->
         <div class="flex items-center gap-4">
-          <span class="text-sm">Login</span>
-<a href="{{ url_for('main.register') }}" 
-   class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition">
-  Sign Up
-</a>
-
-
-        </div>
+            {% if current_user.is_authenticated %}
+              <!-- If logged in -->
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full border border-white flex items-center justify-center font-bold text-white">
+                  {{ current_user.username[:2]|upper }}
+                </div>
+                <span class="text-sm text-white font-semibold">{{ current_user.username }}</span>
+                <a href="{{ url_for('main.logout') }}" 
+                   class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition">
+                  Logout
+                </a>
+              </div>
+            {% else %}
+              <!-- If not logged in -->
+              <span class="text-sm text-gray-300">Login</span>
+              <a href="{{ url_for('main.register') }}" 
+                 class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition">
+                Sign Up
+              </a>
+            {% endif %}
+          </div>
+          
+          
       </header>
       
 
