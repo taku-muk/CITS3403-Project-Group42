@@ -1,158 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Login – CostScope</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | CostScope</title>
+
+  <!-- Tailwind 2 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- Style overrides -->
   <style>
-    * { padding: 0; margin: 0; box-sizing: border-box; }
-    body { background-color: #080710; }
-    .background {
-        width: 430px;
-        height: 520px;
-        position: absolute;
-        transform: translate(-50%, -50%);
-        left: 50%;
-        top: 50%;
+    input:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #000 inset !important;
+      -webkit-text-fill-color: #fff !important;
     }
-    .background .shape {
-        height: 200px;
-        width: 200px;
-        position: absolute;
-        border-radius: 50%;
-    }
-    .shape:first-child {
-        background: linear-gradient(#1845ad, #23a2f6);
-        left: -80px; top: -80px;
-    }
-    .shape:last-child {
-        background: linear-gradient(to right, #ff512f, #f09819);
-        right: -30px; bottom: -80px;
-    }
-    form {
-        height: 520px;
-        width: 400px;
-        background-color: rgba(255,255,255,0.13);
-        position: absolute;
-        transform: translate(-50%, -50%);
-        top: 50%;
-        left: 50%;
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255,255,255,0.1);
-        box-shadow: 0 0 40px rgba(8,7,16,0.6);
-        padding: 50px 35px;
-    }
-    form * {
-        font-family: 'Poppins', sans-serif;
-        color: #ffffff;
-        letter-spacing: 0.5px;
-        outline: none;
-        border: none;
-    }
-    form h3 {
-        font-size: 32px;
-        font-weight: 500;
-        line-height: 42px;
-        text-align: center;
-    }
-    label {
-        display: block;
-        margin-top: 30px;
-        font-size: 16px;
-        font-weight: 500;
-    }
-    input {
-        display: block;
-        height: 50px;
-        width: 100%;
-        background-color: rgba(255,255,255,0.07);
-        border-radius: 3px;
-        padding: 0 10px;
-        margin-top: 8px;
-        font-size: 14px;
-        font-weight: 300;
-    }
-    ::placeholder { color: #e5e5e5; }
-    button {
-        margin-top: 50px;
-        width: 100%;
-        background-color: #ffffff;
-        color: #080710;
-        padding: 15px 0;
-        font-size: 18px;
-        font-weight: 600;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .social {
-        margin-top: 30px;
-        display: flex;
-    }
-    .social div {
-        width: 50%;
-        text-align: center;
-        padding: 10px;
-        background-color: rgba(255,255,255,0.27);
-        color: #eaf0fb;
-        border-radius: 3px;
-    }
-    .social div:hover {
-        background-color: rgba(255,255,255,0.47);
-    }
-    .social .fb { margin-left: 10px; }
-    .flash-msg {
-        margin-top: 15px;
-        background-color: #ff4f4f;
-        padding: 10px;
-        border-radius: 5px;
-        text-align: center;
-        font-size: 14px;
-    }
+
+    .bottom-glow {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 350px;
+  background: radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+
+
   </style>
 </head>
-<body>
-  <div class="background">
-      <div class="shape"></div>
-      <div class="shape"></div>
-  </div>
-  
-  <form method="POST">
-    <h3>Login</h3>
-    {{ form.hidden_tag() }}
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="flash-msg">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
+<body class="bg-black text-white min-h-screen flex flex-col relative ">
+
+<!-- Logo -->
+<div class="absolute top-6 left-20 flex items-center gap-3 z-10">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none"
+       viewBox="0 0 24 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+       aria-hidden="true" focusable="false">
+    <path d="M20 12v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" />
+    <path d="M18 12h.01" />
+  </svg>
+  <strong class="text-2xl font-bold">CostScope</strong>
+</div>
+
+
+  <!-- Card -->
+  <main class="flex-grow flex items-center justify-center px-4 pt-13 relative z-10">
+
+    <div class="w-full max-w-sm bg-white bg-opacity-5 backdrop-blur-md p-8 rounded-xl shadow-xl">
+
+      <h1 class="text-3xl font-semibold text-center mb-8">Login</h1>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="bg-red-500 text-white text-sm p-3 rounded mb-6 text-center">
+            {% for m in messages %}{{ m }}{% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('main.login') }}" class="space-y-6">
+        {{ form.hidden_tag() }}
+
+        <!-- Username -->
+        <div>
+          {{ form.username.label(class_="block text-sm mb-1") }}
+          {{ form.username(class_="w-full px-4 py-2 bg-white bg-opacity-10 rounded placeholder-gray-400") }}
         </div>
-      {% endif %}
-    {% endwith %}
 
-    <label for="username">Username</label>
-    {{ form.username(placeholder="Enter your username") }}
+        <!-- Password -->
+        <div>
+          {{ form.password.label(class_="block text-sm mb-1") }}
+          {{ form.password(class_="w-full px-4 py-2 bg-white bg-opacity-10 rounded placeholder-gray-400") }}
+        </div>
 
-    <label for="password">Password</label>
-    {{ form.password(placeholder="Enter your password") }}
+        {{ form.submit(class_="w-full bg-white text-black font-semibold py-2 rounded hover:bg-gray-200 transition") }}
+      </form>
 
-    {{ form.submit(class_="btn") }}
+      <!-- Sign-up link -->
+      <p class="mt-6 text-center text-sm text-gray-400">
+        Don’t have an account?
+        <a href="{{ url_for('main.register') }}" class="text-blue-400 hover:underline">Sign up</a>
+      </p>
 
-    <div class="social">
-      <div class="go"><i class="fab fa-google"></i> Google</div>
-      <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
+      <!-- Divider -->
+      <div class="flex items-center my-6">
+        <div class="flex-grow h-px bg-gray-600"></div>
+        <span class="px-3 text-sm text-gray-400">OR</span>
+        <div class="flex-grow h-px bg-gray-600"></div>
+      </div>
+
+      <!-- Google OAuth button -->
+      <a href="/auth/google"
+         class="w-full flex items-center justify-center gap-2 py-2 border border-gray-600 rounded hover:bg-gray-800 transition">
+        <img src="https://www.svgrepo.com/show/355037/google.svg" class="w-5 h-5" alt="Google">
+        <span>Continue with Google</span>
+      </a>
+
+      <p class="mt-10 text-center text-xs text-gray-500">
+        Terms of Use&nbsp;|&nbsp;Privacy Policy
+      </p>
     </div>
-    
-    <div style="margin-top: 20px; text-align: center;">
-      <a href="/" class="btn" style="text-decoration: none; color: #080710; background-color: #ffffff; padding: 10px 20px; border-radius: 5px; font-size: 14px; font-weight: 500;">Back to Home</a>
-    </div>
-  </form>
-
-
-
-
+  </main>
 
 </body>
 </html>
