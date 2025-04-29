@@ -8,103 +8,20 @@
   </head>
 
   <body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
-    <!-- wrapper -->
     <div class="w-full max-w-6xl flex flex-col pt-32">
-      <!-- title -->
       <h1 class="text-5xl sm:text-6xl font-semibold mb-10">Your Dashboard</h1>
 
-
-      <!-- EVERYTHING BELOW THIS LINE SHOULD SIT CLOSER TOGETHER -->
       <div class="flex flex-col gap-8">
-        <!-- top cards -->
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          <div
-            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
-          >
-            <p class="text-[#838383] text-sm">Total Income</p>
-            <h2 class="text-2xl font-bold">$500</h2>
-          </div>
+        {% include 'visualise_components/top_cards.html' %}
 
-          <div
-            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
-          >
-            <p class="text-[#838383] text-sm">Total Expenditure</p>
-            <h2 class="text-2xl font-bold">$150</h2>
-          </div>
-
-          <div
-            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
-          >
-            <p class="text-[#838383] text-sm">Net Income</p>
-            <h2 class="text-2xl font-bold">$350</h2>
-          </div>
-
-          <div
-            class="bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32"
-          >
-            <p class="text-[#838383] text-sm">Run Rate</p>
-            <h2 class="text-2xl font-bold">2.5&nbsp;Months</h2>
-          </div>
-        </div>
-
-        <!-- middle placeholders -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div
-            class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex items-center justify-center h-80"
-          >
-            <h2 class="text-[#838383] text-xl">[Cash-flow Ring Placeholder]</h2>
-          </div>
-          <div
-            class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex items-center justify-center h-80"
-          >
-            <h2 class="text-[#838383] text-xl">
-              [Expenses Breakdown Placeholder]
-            </h2>
-          </div>
+         {% include 'visualise_components/cashflow_ring.html' %}
+         {% include 'visualise_components/cashflow_list.html' %}
         </div>
 
-        <!-- assets & liabilities -->
-        <div
-          class="bg-[#151515] p-6 rounded-xl border border-[#333] space-y-6"
-        >
-          <h2 class="text-2xl font-bold">Assets and Liabilities</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4"
-            >
-              <p class="text-[#838383] text-sm">Savings</p>
-              <h3 class="text-xl font-bold">$12,000</h3>
-              <div class="w-full h-2 bg-[#151515] rounded-full">
-                <div class="bg-white h-2 rounded-full" style="width: 70%"></div>
-              </div>
-            </div>
-
-            <div
-              class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4"
-            >
-              <p class="text-[#838383] text-sm">Investments</p>
-              <h3 class="text-xl font-bold">$5,000</h3>
-              <div class="w-full h-2 bg-[#151515] rounded-full">
-                <div class="bg-white h-2 rounded-full" style="width: 40%"></div>
-              </div>
-            </div>
-
-            <div
-              class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4"
-            >
-              <p class="text-[#838383] text-sm">Debt</p>
-              <h3 class="text-xl font-bold">$6,534.56</h3>
-              <div class="w-full h-2 bg-[#151515] rounded-full">
-                <div class="bg-white h-2 rounded-full" style="width: 50%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- /assets & liabilities -->
+        {% include 'visualise_components/assets_liabilities.html' %}
       </div>
     </div>
-    <!-- /wrapper -->
   </body>
 </html>
+
