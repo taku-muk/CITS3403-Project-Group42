@@ -36,6 +36,27 @@
       renderTopCards(dummyData);
     </script>
     
+    <script type="module">
+      import { renderTopCards } from "{{ url_for('static', filename='js/top_cards.js') }}";
+      import { renderAssetsAndLiabilities } from "{{ url_for('static', filename='js/assets_liabilities.js') }}";
+    
+      const dummyTopCards = {
+        totalIncome: 5000,
+        totalExpenditure: 2000,
+        netIncome: 3000,
+        runRate: 3.5
+      };
+    
+      const dummyAssets = [
+        { name: 'Savings', amount: 12000, progress: 70 },
+        { name: 'Investments', amount: 5000, progress: 40 },
+        { name: 'Debt', amount: 6534.56, progress: 50 }
+      ];
+    
+      renderTopCards(dummyTopCards);
+      renderAssetsAndLiabilities(dummyAssets);
+    </script>
+    
   </body>
 </html>
 
