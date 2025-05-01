@@ -15,11 +15,8 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()])
     submit = SubmitField('Login')
 
-from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, SelectField, SubmitField
-from wtforms.validators import InputRequired
 
-class ExpenseForm(FlaskForm):
+
     month = StringField('Month (e.g. 2025-07)', validators=[InputRequired()])
 
     rent = FloatField('Rent', default=0)
