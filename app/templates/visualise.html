@@ -22,6 +22,20 @@
         {% include 'visualise_components/assets_liabilities.html' %}
       </div>
     </div>
+
+    <script type="module">
+      import { renderTopCards } from "{{ url_for('static', filename='js/top_cards.js') }}";
+    
+      const dummyData = {
+        totalIncome: 5000,
+        totalExpenditure: 2000,
+        netIncome: 3000,
+        runRate: 3.5
+      };
+    
+      renderTopCards(dummyData);
+    </script>
+    
   </body>
 </html>
 
