@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Finances </title>
+  <title>Studio Clone – Interactive Finance Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
+  <!-- Papa Parse 5.x – tiny, no build-step required -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style type="text/tailwindcss">
     /* Hover effect for editable cells */
@@ -157,6 +158,244 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
   
 
 </main>
+
+<script>
+  const TAGS = ['Need', 'Want', 'Essential'];
+  const addTransactionBtn = document.getElementById('addTransactionBtn');
+  const manualBtn           = document.getElementById('manualBtn');
+  const tableBody = document.getElementById('transactionTableBody');
+  const transactionsSection   = document.getElementById('transactionsSection');
+  const importBtn = document.querySelector('#manualBtn').nextElementSibling; // finds the Import button
+  const importSection = document.getElementById('importSection');
+
+
+// Show the table when “Manually input” is clicked and hide the import 
+manualBtn.addEventListener('click', () => {
+  transactionsSection.classList.remove('hidden');
+  importSection.classList.add('hidden');
+});
+
+
+// show the import and hide the manual 
+importBtn.addEventListener('click', () => {
+  transactionsSection.classList.add('hidden');
+  importSection.classList.remove('hidden');
+});
+
+
+  // Make a cell editable by turning it into an input
+  function makeEditable(td) {
+  td.addEventListener('click', () => {
+    // don’t open twice
+    if (td.dataset.editing === '1') return;
+    td.dataset.editing = '1';
+
+    /* remember the original classes (they contain the padding) */
+    const originalClass = td.className;
+
+    /* temporarily drop the padding so height/width stay identical */
+    td.className = 'p-0';
+
+    /* build the input */
+    const old = td.textContent.trim();
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = old === '\u00A0' ? '' : old;
+
+    /* exactly fill the cell, no extra space */
+    input.className =
+      'bg-transparent text-white outline-none w-full h-full box-border';
+
+    /* swap the content */
+    td.innerHTML = '';
+    td.appendChild(input);
+    input.focus();
+
+    const finish = () => {
+      const val = input.value.trim() || '\u00A0';
+      td.textContent = val;
+
+      /* restore the original padding / classes */
+      td.className = originalClass;
+      delete td.dataset.editing;
+    };
+
+    input.addEventListener('blur', finish);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') input.blur();
+    });
+  });
+}
+
+  // Show a Notion-like tag picker
+ // define your layers up front
+const TAG_CATEGORIES = [
+  {
+    key: 'frequency',
+    label: 'Frequency',
+    single: true,
+    options: ['Recurring', 'Once-off']
+  },
+  {
+    key: 'importance',
+    label: 'Importance',
+    single: false,
+    options: ['Need', 'Want', 'Essential']
+  }
+];
+
+function makeTagEditable(td) {
+  td.addEventListener('click', event => {
+    event.stopPropagation();
+    // don’t re-open if one is already showing
+    if (document.body.querySelector('.tag-popup')) return;
+
+    // read existing selections (if any)
+    const existing = td.dataset.tags
+      ? JSON.parse(td.dataset.tags)
+      : {};
+
+    // compute cell position
+    const rect = td.getBoundingClientRect();
+    const popup = document.createElement('div');
+    popup.className = 'tag-popup';
+    // base styles (you can move these into your CSS)
+    Object.assign(popup.style, {
+      position: 'absolute',
+      top: rect.bottom + window.scrollY + 'px',
+      left: rect.left + window.scrollX + 'px',
+      width: '14rem',
+      background: '#1e1e1e',
+      border: '1px solid #333',
+      borderRadius: '0.5rem',
+      padding: '0.75rem',
+      zIndex: 9999
+    });
+
+    // build each category section
+    TAG_CATEGORIES.forEach(cat => {
+      // heading
+      const h = document.createElement('div');
+      h.textContent = cat.label;
+      h.className = 'text-sm font-semibold mb-1 text-gray-200';
+      popup.appendChild(h);
+
+      // container for buttons
+      const cont = document.createElement('div');
+      cont.className = 'flex flex-wrap gap-2 mb-3';
+
+      cat.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = opt;
+        btn.dataset.cat = cat.key;
+        btn.dataset.val = opt;
+        btn.className = 'px-2 py-1 rounded-full text-sm border';
+
+        // initialize selected state
+        const sel = existing[cat.key] || [];
+        const isSelected = cat.single
+          ? sel === opt
+          : sel.includes(opt);
+        if (isSelected) {
+          btn.classList.add('bg-purple-600', 'text-white');
+        } else {
+          btn.classList.add('bg-gray-700', 'text-gray-300');
+        }
+
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          let cur = existing[cat.key] || (cat.single ? '' : []);
+          if (cat.single) {
+            // single-select: clear old
+            existing[cat.key] = opt;
+            // update visuals
+            cont.querySelectorAll('button').forEach(b => {
+              b.classList.toggle('bg-purple-600', b === btn);
+              b.classList.toggle('text-white', b === btn);
+              b.classList.toggle('bg-gray-700', b !== btn);
+              b.classList.toggle('text-gray-300', b !== btn);
+            });
+          } else {
+            // multi-select: toggle in array
+            if (!Array.isArray(cur)) cur = [];
+            if (cur.includes(opt)) {
+              cur = cur.filter(x => x !== opt);
+              btn.classList.replace('bg-purple-600','bg-gray-700');
+              btn.classList.replace('text-white','text-gray-300');
+            } else {
+              cur.push(opt);
+              btn.classList.replace('bg-gray-700','bg-purple-600');
+              btn.classList.replace('text-gray-300','text-white');
+            }
+            existing[cat.key] = cur;
+          }
+        });
+
+        cont.appendChild(btn);
+      });
+
+      popup.appendChild(cont);
+    });
+
+    document.body.appendChild(popup);
+
+    // click-away to close & save
+    function close(e) {
+      if (!popup.contains(e.target)) {
+        // serialize into cell text and dataset
+        // clear out the cell…
+td.innerHTML = '';
+td.dataset.tags = JSON.stringify(existing);
+
+// render frequency (if any) as a pill
+if (existing.frequency) {
+  const f = document.createElement('span');
+  f.textContent = existing.frequency;
+  f.className = 'tag-pill ' + existing.frequency;
+  td.appendChild(f);
+}
+
+// render each importance tag as its own pill
+(existing.importance || []).forEach(tag => {
+  const p = document.createElement('span');
+  p.textContent = tag;
+  p.className = 'tag-pill ' + tag;
+  td.appendChild(p);
+});
+
+        document.body.removeChild(popup);
+        document.removeEventListener('click', close);
+      }
+    }
+    setTimeout(() => document.addEventListener('click', close), 0);
+  });
+}
+
+
+  // Add a blank row with min-height cells
+  addTransactionBtn.addEventListener('click', () => {
+    // show the table container if it was hidden
+     transactionsSection.classList.remove('hidden');
+    const row = document.createElement('tr');
+    row.className = 'border-b border-[#2a2a2a]';
+
+    ['name', 'type', 'amount', 'tags'].forEach((col, i) => {
+      const td = document.createElement('td');
+      td.className = 'py-2 pr-4 min-h-[3rem]';
+      td.innerHTML = ' ';  // non-breaking space keeps height
+      if (col === 'tags') {
+        td.className = 'py-2 min-h-[3rem]';
+        makeTagEditable(td);
+      } else {
+        makeEditable(td);
+      }
+      row.appendChild(td);
+    });
+
+    tableBody.appendChild(row);
+  });
+</script>
 
 
 </body>
