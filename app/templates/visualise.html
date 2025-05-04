@@ -1,157 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
 
-  </head>
+<body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
+  <div class="w-full max-w-6xl flex flex-col pt-32">
+    <h1 class="text-5xl sm:text-6xl font-semibold mb-10">Your Dashboard</h1>
 
-  <body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
-    <div class="w-full max-w-6xl flex flex-col pt-32">
-      <h1 class="text-5xl sm:text-6xl font-semibold mb-10">Your Dashboard</h1>
+    <div class="flex flex-col gap-8">
 
-      <div class="flex flex-col gap-8">
-        {% include 'visualise_components/top_cards.html' %}
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {% include 'visualise_components/cashflow_ring.html' %}
-          {% include 'visualise_components/cashflow_list.html' %}
-        </div>
-
-        {% include 'visualise_components/assets_liabilities.html' %}
-        {% include 'visualise_components/monthly_trend.html' %}
-
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% include 'visualise_components/cashflow_ring.html' %}
+        {% include 'visualise_components/cashflow_list.html' %}
       </div>
+
+      {% include 'visualise_components/assets_liabilities.html' %}
+      {% include 'visualise_components/monthly_trend.html' %}
+
     </div>
+  </div>
 
-    <!-- Dynamic JavaScript Rendering -->
-    <script type="module">
-      import { renderTopCards } from "{{ url_for('static', filename='js/top_cards.js') }}";
-      import { renderAssetsAndLiabilities } from "{{ url_for('static', filename='js/assets_liabilities.js') }}";
+  <!-- Dynamic JavaScript Rendering -->
+  <script type="module">
+    import { renderTopCards } from "{{ url_for('static', filename='js/top_cards.js') }}";
+    import { renderAssetsAndLiabilities } from "{{ url_for('static', filename='js/assets_liabilities.js') }}";
 
-      // Data from Flask (converted to JS)
-      const topCardData = {{ top_card_data | tojson }};
-      const assetsData = {{ assets_data | tojson }};
+    // Data from Flask (converted to JS)
+    const topCardData = {{ top_card_data | tojson }};
+    const assetsData = {{ assets_data | tojson }};
 
-      // Call rendering functions
-      renderTopCards(topCardData);
-      renderAssetsAndLiabilities(assetsData);
+    // Call rendering functions
+    renderTopCards(topCardData);
+    renderAssetsAndLiabilities(assetsData);
 
-      // Needs vs Wants chart
-      const needs = {{ needs_total | tojson }};
-      const wants = {{ wants_total | tojson }};
+    // Needs vs Wants chart
+    const needs = {{ needs_total | tojson }};
+    const wants = {{ wants_total | tojson }};
 
-      const ctx = document.getElementById('needsWantsChart').getContext('2d');
-      const needsWantsChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['Needs', 'Wants'],
-          datasets: [{
-            data: [needs, wants],
-            backgroundColor: ['#3B82F6', '#F59E0B'],
-            borderColor: '#151515',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              labels: {
-                color: 'white'
-              }
+    const ctx = document.getElementById('needsWantsChart').getContext('2d');
+    const needsWantsChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Needs', 'Wants'],
+        datasets: [{
+          data: [needs, wants],
+          backgroundColor: ['#3B82F6', '#F59E0B'],
+          borderColor: '#151515',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: 'white'
             }
           }
         }
-      });
+      }
+    });
 
-      // Top 3 Categories Bar Chart
-      const topLabels = {{ top_labels | tojson }};
-      const topValues = {{ top_values | tojson }};
+    // Top 3 Categories Bar Chart
+    const topLabels = {{ top_labels | tojson }};
+    const topValues = {{ top_values | tojson }};
 
-      const barCtx = document.getElementById('topCategoriesChart').getContext('2d');
-      const topCategoriesChart = new Chart(barCtx, {
-        type: 'bar',
-        data: {
-          labels: topLabels,
-          datasets: [{
-            label: 'Spending ($)',
-            data: topValues,
-            backgroundColor: ['#60A5FA', '#FBBF24', '#F87171'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              ticks: {
-                color: 'white'
-              },
-              beginAtZero: true
+    const barCtx = document.getElementById('topCategoriesChart').getContext('2d');
+    const topCategoriesChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: topLabels,
+        datasets: [{
+          label: 'Spending ($)',
+          data: topValues,
+          backgroundColor: ['#60A5FA', '#FBBF24', '#F87171'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            ticks: {
+              color: 'white'
             },
-            x: {
-              ticks: {
-                color: 'white'
-              }
-            }
+            beginAtZero: true
           },
-          plugins: {
-            legend: {
-              labels: {
-                color: 'white'
-              }
+          x: {
+            ticks: {
+              color: 'white'
             }
           }
-        }
-      });
-
-      // Monthly Totals Line Chart
-      const monthlyLabels = {{ months | tojson }};
-      const monthlyValues = {{ monthly_totals | tojson }};
-
-      const lineCtx = document.getElementById('monthlyLineChart').getContext('2d');
-      const monthlyLineChart = new Chart(lineCtx, {
-        type: 'line',
-        data: {
-          labels: monthlyLabels,
-          datasets: [{
-            label: 'Monthly Total ($)',
-            data: monthlyValues,
-            fill: false,
-            borderColor: '#10B981',
-            tension: 0.3
-          }]
         },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              ticks: {
-                color: 'white'
-              },
-              beginAtZero: true
-            },
-            x: {
-              ticks: {
-                color: 'white'
-              }
-            }
-          },
-          plugins: {
-            legend: {
-              labels: {
-                color: 'white'
-              }
+        plugins: {
+          legend: {
+            labels: {
+              color: 'white'
             }
           }
         }
-      });
+      }
+    });
 
+    // Monthly Totals Line Chart
+    const monthlyLabels = {{ months | tojson }};
+    const monthlyValues = {{ monthly_totals | tojson }};
 
-    </script>
-  </body>
+    const lineCtx = document.getElementById('monthlyLineChart').getContext('2d');
+    const monthlyLineChart = new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: monthlyLabels,
+        datasets: [{
+          label: 'Monthly Total ($)',
+          data: monthlyValues,
+          fill: false,
+          borderColor: '#10B981',
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            ticks: {
+              color: 'white'
+            },
+            beginAtZero: true
+          },
+          x: {
+            ticks: {
+              color: 'white'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'white'
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
 </html>
