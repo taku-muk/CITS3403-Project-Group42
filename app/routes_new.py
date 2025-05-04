@@ -59,28 +59,28 @@ def logout():
 @main.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
-    form = ExpenseForm()
-    if form.validate_on_submit():
-        for field_name in [
-            'rent', 'utilities', 'groceries', 'eating_out', 'transport',
-            'entertainment', 'subscriptions', 'health', 'education', 'insurance',
-            'debt_repayment', 'travel', 'gifts_donations', 'savings_investments',
-            'pets', 'other'
-        ]:
-            amount = getattr(form, field_name).data
-            if amount and amount > 0:
-                expense = Expense(
-                    user_id=current_user.id,
-                    month=form.month.data,
-                    category=form[field_name].label.text,
-                    amount=amount,
-                    city=form.city.data
-                )
-                db.session.add(expense)
+    """
+    (A) ordinary WTForms POST               -> request.form
+    (B) our new JS/JSON fetch() POST        -> request.is_json
+    Both paths end up inserting Expense rows, then redirect.
+    """
+    if request.is_json:
+        payload = request.get_json()
+         #  Delete all existing expenses for this user
+        Expense.query.filter_by(user_id=current_user.id).delete()
+        for tx in payload.get('transactions', []):
+            db.session.add(Expense(
+                user_id   = current_user.id,
+                name      = tx['name'],
+                type      = tx['type'],
+                amount    = float(tx['amount']),
+                tags      = tx['tags']
+            ))
         db.session.commit()
-        flash("Expenses uploaded!")
-        return redirect(url_for('main.visualise'))
-    return render_template('upload.html', form=form)
+        return '', 204  # ✅ JS handles the redirect after
+
+    # 🛑 ADD THIS: for normal GET requests, render the upload page
+    return render_template('upload.html')
 
 @main.route('/upload-manual', methods=['POST'])
 @login_required
