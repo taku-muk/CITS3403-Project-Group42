@@ -1,7 +1,6 @@
 # app/forms.py
-
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FloatField, DateField 
+from wtforms import StringField, PasswordField, SubmitField, FloatField, SelectField, FieldList, FormField
 from wtforms.validators import InputRequired, Length, EqualTo
 
 class RegisterForm(FlaskForm):
@@ -15,11 +14,17 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()])
     submit = SubmitField('Login')
 
-from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, SelectField, SubmitField
-from wtforms.validators import InputRequired
+class TransactionForm(FlaskForm):
+    name = StringField('Name', validators=[InputRequired()])
+    type = SelectField('Type', choices=[('expense', 'Expense'), ('income', 'Income')], validators=[InputRequired()])
+    amount = FloatField('Amount', validators=[InputRequired()])
+    frequency = SelectField('Frequency', choices=[('Recurring', 'Recurring'), ('Once-off', 'Once-off')])
+    importance = SelectField('Importance', choices=[('Need', 'Need'), ('Want', 'Want'), ('Essential', 'Essential')])
 
 class ExpenseForm(FlaskForm):
+    transactions = FieldList(FormField(TransactionForm), min_entries=1)
+
+
     month = StringField('Month (e.g. 2025-07)', validators=[InputRequired()])
 
     rent = FloatField('Rent', default=0)

@@ -1,27 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-  <body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
-    <div class="w-full max-w-6xl flex flex-col pt-32">
-      <h1 class="text-5xl sm:text-6xl font-semibold mb-10">Your Dashboard</h1>
+<body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
+  <div class="w-full max-w-6xl flex flex-col pt-32">
+    <h1 class="text-5xl sm:text-6xl font-semibold mb-10">Your Dashboard</h1>
 
-      <div class="flex flex-col gap-8">
-        {% include 'visualise_components/top_cards.html' %}
+    <div class="flex flex-col gap-8">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         {% include 'visualise_components/cashflow_ring.html' %}
-         {% include 'visualise_components/cashflow_list.html' %}
-        </div>
+      <!-- Placeholder for Top Cards (JS will fill later) -->
+      <div id="top-cards"></div>
 
-        {% include 'visualise_components/assets_liabilities.html' %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% include 'visualise_components/cashflow_ring.html' %}
+        {% include 'visualise_components/cashflow_list.html' %}
       </div>
-    </div>
-  </body>
-</html>
 
+      <!-- Placeholder for Assets and Liabilities (JS will fill later) -->
+      <div id="assets-liabilities"></div>
+
+    </div>
+  </div>
+
+  <!-- Dummy data + Import and render -->
+  <script type="module">
+    import { renderTopCards } from "{{ url_for('static', filename='js/top_cards.js') }}";
+    import { renderAssetsAndLiabilities } from "{{ url_for('static', filename='js/assets_liabilities.js') }}";
+
+    // Dummy data
+    const dashboardStats = {
+      totalIncome: 500,
+      totalExpenditure: 150,
+      netIncome: 350,
+      runRate: 2.5
+    };
+
+    const assetsData = [
+      { name: 'Savings', amount: 12000, progress: 70 },
+      { name: 'Investments', amount: 5000, progress: 40 },
+      { name: 'Debt', amount: 6534.56, progress: 50 }
+    ];
+
+    // Call imported functions
+    renderTopCards(dashboardStats);
+    renderAssetsAndLiabilities(assetsData);
+  </script>
+
+</body>
+</html>
