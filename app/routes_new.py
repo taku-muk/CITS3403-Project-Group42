@@ -7,8 +7,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Expense
 from .forms import RegisterForm, LoginForm, ExpenseForm
 from .extensions import db
-
+from collections import defaultdict
 main = Blueprint('main', __name__)
+import json
 
 @main.route('/')
 def home():
@@ -88,7 +89,7 @@ def upload():
 def visualise():
     user_expenses = Expense.query.filter_by(user_id=current_user.id).all()
 
-    # Calculate totals
+    # Calculate total income, expenditure, etc.
     total_income = sum(e.amount for e in user_expenses if e.type == 'income')
     total_expenditure = sum(e.amount for e in user_expenses if e.type == 'expense')
     net_income = total_income - total_expenditure
@@ -98,16 +99,6 @@ def visualise():
         e.amount for e in user_expenses if e.type in ['savings', 'investment']
     )
 
-    # Assets + liabilities data (same as before)
-    assets_data = []
-    for exp in user_expenses:
-        if exp.type in ['savings', 'investment', 'debt']:
-            assets_data.append({
-                'name': exp.type.capitalize(),
-                'amount': exp.amount,
-                'progress': 50  # Placeholder
-            })
-
     # Calculate run rate (runway in months)
     available_funds = total_savings + net_income
 
@@ -116,20 +107,92 @@ def visualise():
     else:
         run_rate_months = 0.00  # fallback if no funds or no expenses
 
+    # Assets + liabilities
+    assets_data = []
+    for exp in user_expenses:
+        if exp.type in ['savings', 'investment', 'debt']:
+            assets_data.append({
+                'name': exp.type.capitalize(),
+                'amount': exp.amount,
+                'progress': 50  # placeholder
+            })
+
+    # Cashflow ring data (grouping by tag)
+    tag_totals = defaultdict(float)
+    for exp in user_expenses:
+        if exp.type == 'expense':
+            if exp.tags:
+                try:
+                    tags = json.loads(exp.tags)
+                    importance_tags = tags.get('importance', [])
+                    if isinstance(importance_tags, str):
+                        importance_tags = [importance_tags]
+                    for tag in importance_tags:
+                        tag_totals[tag] += exp.amount
+                except Exception:
+                    tag_totals['Uncategorized'] += exp.amount
+            else:
+                tag_totals['Uncategorized'] += exp.amount
+
+    total_tagged_expenses = sum(tag_totals.values())
+    leftover = total_income - total_tagged_expenses
+
+    chart_data = {
+        'totalIncome': total_income,
+        'tagTotals': dict(tag_totals),
+        'leftover': leftover if leftover > 0 else 0  # avoid negative
+    }
+
     return render_template(
         'visualise.html',
         dashboard_stats={
             'totalIncome': total_income,
             'totalExpenditure': total_expenditure,
             'netIncome': net_income,
-            'runRate': run_rate_months  # 🚀 now showing months!
+            'runRate': run_rate_months  # ✅ corrected to pass the right run rate
         },
-        assets_data=assets_data
+        assets_data=assets_data,
+        chart_data=chart_data
     )
 
-@main.route('/test')
-def test():
-    return render_template('test.html')
+
+
+@main.route('/cashflow')
+@login_required
+def cashflow():
+    user_expenses = Expense.query.filter_by(user_id=current_user.id).all()
+
+    # Total income = cashflow center
+    total_income = sum(e.amount for e in user_expenses if e.type == 'income')
+
+    # Group expenses by tags (importance)
+    tag_totals = defaultdict(float)
+    for exp in user_expenses:
+        if exp.type == 'expense':
+            if exp.tags:
+                try:
+                    tags = json.loads(exp.tags)
+                    importance_tags = tags.get('importance', [])
+                    if isinstance(importance_tags, str):
+                        importance_tags = [importance_tags]
+                    for tag in importance_tags:
+                        tag_totals[tag] += exp.amount
+                except Exception:
+                    tag_totals['Uncategorized'] += exp.amount
+            else:
+                tag_totals['Uncategorized'] += exp.amount
+    
+    total_tagged_expenses = sum(tag_totals.values())
+    leftover = total_income - total_tagged_expenses
+
+    # ✅ Build data for chart
+    chart_data = {
+        'totalIncome': total_income,
+        'tagTotals': tag_totals,  # This is a dict: { "Essential": 120, "Want": 80, ... }
+        'leftover': leftover if leftover > 0 else 0  # avoid negative
+    }
+
+    return render_template('cashflow_ring.html', chart_data=chart_data)
 
 
 
