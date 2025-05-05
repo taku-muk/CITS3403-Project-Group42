@@ -88,22 +88,33 @@ def upload():
 def visualise():
     user_expenses = Expense.query.filter_by(user_id=current_user.id).all()
 
-    # Calculate total income, expenditure, etc.
+    # Calculate totals
     total_income = sum(e.amount for e in user_expenses if e.type == 'income')
     total_expenditure = sum(e.amount for e in user_expenses if e.type == 'expense')
     net_income = total_income - total_expenditure
-    run_rate = total_expenditure / (total_income or 1)  # avoid division by zero
 
-    # Assets + liabilities: you can customize this based on your data
+    # Sum up all savings (savings + investments)
+    total_savings = sum(
+        e.amount for e in user_expenses if e.type in ['savings', 'investment']
+    )
+
+    # Assets + liabilities data (same as before)
     assets_data = []
     for exp in user_expenses:
         if exp.type in ['savings', 'investment', 'debt']:
             assets_data.append({
                 'name': exp.type.capitalize(),
                 'amount': exp.amount,
-                # Optional: estimate progress (custom logic—this is just a placeholder)
-                'progress': 50  
+                'progress': 50  # Placeholder
             })
+
+    # Calculate run rate (runway in months)
+    available_funds = total_savings + net_income
+
+    if available_funds > 0 and total_expenditure > 0:
+        run_rate_months = round(available_funds / total_expenditure, 2)
+    else:
+        run_rate_months = 0.00  # fallback if no funds or no expenses
 
     return render_template(
         'visualise.html',
@@ -111,11 +122,10 @@ def visualise():
             'totalIncome': total_income,
             'totalExpenditure': total_expenditure,
             'netIncome': net_income,
-            'runRate': run_rate
+            'runRate': run_rate_months  # 🚀 now showing months!
         },
         assets_data=assets_data
     )
-
 
 @main.route('/test')
 def test():
