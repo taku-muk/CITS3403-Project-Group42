@@ -156,9 +156,6 @@ def visualise():
     )
 
 
-@main.route('/test')
-def test():
-    return render_template('test.html')
 
 @main.route('/cashflow')
 @login_required
@@ -196,8 +193,6 @@ def cashflow():
     }
 
     return render_template('cashflow_ring.html', chart_data=chart_data)
-
-
 
 
 
