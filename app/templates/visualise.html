@@ -33,18 +33,10 @@
     import { renderAssetsAndLiabilities } from "{{ url_for('static', filename='js/assets_liabilities.js') }}";
 
     // Dummy data
-    const dashboardStats = {
-      totalIncome: 500,
-      totalExpenditure: 150,
-      netIncome: 350,
-      runRate: 2.5
-    };
+    const dashboardStats = {{ dashboard_stats | tojson }};
+    const assetsData = {{ assets_data | tojson }};
 
-    const assetsData = [
-      { name: 'Savings', amount: 12000, progress: 70 },
-      { name: 'Investments', amount: 5000, progress: 40 },
-      { name: 'Debt', amount: 6534.56, progress: 50 }
-    ];
+  
 
     // Call imported functions
     renderTopCards(dashboardStats);
