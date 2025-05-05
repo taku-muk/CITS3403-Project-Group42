@@ -6,61 +6,64 @@
   </style>
   
   <div class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] h-80 relative">
-      <canvas id="cashFlowChart"></canvas>
-      <div id="cashFlowCenterText" class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white pointer-events-none">
-          $500
-      </div>
+    <canvas id="cashFlowChart"></canvas>
+    <div id="cashFlowCenterText" class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white pointer-events-none">
+        $500
+    </div>
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-  const chartData = {{ chart_data | tojson }};
-  const totalIncome = chartData.totalIncome;
-  const tagTotals = chartData.tagTotals;
-  
-  // Extract labels and data
-  const labels = Object.keys(tagTotals);
-  const data = Object.values(tagTotals);
-  
-  // Update the center text
-  // Update the center text
-  document.getElementById('cashFlowCenterText').textContent = `$${totalIncome.toFixed(2)}`;
+    const chartData = JSON.parse('{{ chart_data | tojson | safe }}');
+const totalIncome = chartData.totalIncome;
+const tagTotals = chartData.tagTotals;
+const leftover = chartData.leftover;
 
-  
-  const ctx = document.getElementById('cashFlowChart').getContext('2d');
-  
-  new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-          labels: labels,
-          datasets: [{
-              data: data,
-              backgroundColor: [
-                  'rgba(165, 180, 252, 0.2)',  // Indigo
-                  'rgba(216, 180, 254, 0.2)',  // Purple
-                  'rgba(170, 170, 170, 0.2)',  // Grey
-                  // Add more colors here if you have more tags
-              ],
-              borderColor: [
-                  '#4338CA',  // Indigo
-                  '#6B21A8',  // Purple
-                  '#333333',  // Grey
-                  // Add more border colors to match above
-              ],
-              borderWidth: 1,
-          }]
-      },
-      options: {
-          cutout: '70%',
-          maintainAspectRatio: false,
-          plugins: {
-              legend: {
-                  display: true
-              },
-              tooltip: {
-                  enabled: true
-              }
-          }
-      }
-  });
-</script>
+// Extract labels and data
+const labels = Object.keys(tagTotals);
+const data = Object.values(tagTotals);
+
+// Add leftover to make proportions correct
+labels.push('Leftover');
+data.push(leftover);
+
+// Update the center text
+document.getElementById('cashFlowCenterText').textContent = `$${totalIncome.toFixed(2)}`;
+
+const ctx = document.getElementById('cashFlowChart').getContext('2d');
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: data,
+            backgroundColor: [
+                'rgba(165, 180, 252, 0.2)',  // Essential
+                'rgba(216, 180, 254, 0.2)',  // Want
+                'rgba(170, 170, 170, 0.2)',  // Grey leftover
+            ],
+            borderColor: [
+                '#4338CA',  // Essential
+                '#6B21A8',  // Want
+                '#333333',  // Grey leftover
+            ],
+            borderWidth: 1,
+        }]
+    },
+    options: {
+        cutout: '70%',
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                enabled: true
+            }
+        }
+    }
+});
+
+    </script>
+    
