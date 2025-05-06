@@ -10,6 +10,7 @@ from .extensions import db
 from collections import defaultdict
 main = Blueprint('main', __name__)
 import json
+from .models import SharedReport
 
 @main.route('/')
 def home():
@@ -155,6 +156,11 @@ def visualise():
         chart_data=chart_data
     )
 
+@main.route('/shared-with-me')
+@login_required
+def shared_with_me():
+    reports = SharedReport.query.filter_by(recipient_username=current_user.username).all()
+    return render_template('shared_with_me.html', shared_reports=reports)
 
 
 @main.route('/cashflow')

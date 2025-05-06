@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto text-white p-6 space-y-8">
+  <h1 class="text-3xl font-bold">Reports Shared With You</h1>
+
+  {% if shared_reports %}
+  <table class="w-full text-sm border border-[#333] mt-6">
+    <thead class="bg-[#2a2a2a]">
+      <tr>
+        <th class="p-2 text-left">From</th>
+        <th class="p-2 text-left">Title</th>
+        <th class="p-2 text-left">Permission</th>
+        <th class="p-2 text-left">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for report in shared_reports %}
+      <tr class="border-t border-[#333]">
+        <td class="p-2">{{ report.owner.username }}</td>
+        <td class="p-2">{{ report.report_title }}</td>
+        <td class="p-2">{{ report.permission }}</td>
+        <td class="p-2">{{ report.timestamp.strftime('%Y-%m-%d') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No reports have been shared with you yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
