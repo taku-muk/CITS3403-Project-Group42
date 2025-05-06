@@ -7,7 +7,9 @@
 
     {% if current_user.is_authenticated %}
       <a href="{{ url_for('main.upload') }}" class="btn">Go to Expense Entry</a>
-      <a href="{{ url_for('main.visualise') }}" class="btn">View Stats</a> <!-- ✅ New Button -->
+      <a href="{{ url_for('main.visualise') }}" class="btn">View Stats</a> 
+      <a href="{{ url_for('main.share_data') }}" class="btn">Share Data</a>
+      <a href="{{ url_for('main.shared_with_me') }}" class="btn">View Shared With Me</a>
       <a href="{{ url_for('main.logout') }}" class="btn">Logout</a>
     {% else %}
       <a href="{{ url_for('main.login') }}" class="btn">Login</a>

@@ -200,6 +200,12 @@ def cashflow():
 
     return render_template('cashflow_ring.html', chart_data=chart_data)
 
+@main.route('/share')
+@login_required
+def share_data():
+    # Logic for sharing data goes here
+    return render_template('share.html')
+
 
 
 
