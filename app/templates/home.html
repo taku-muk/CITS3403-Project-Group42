@@ -1,19 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div style="text-align:center; color: white; padding: 3rem;">
-    <h1>Welcome to CostScope 💸</h1>
-    <p>Track your expenses, compare cities, and plan your lifestyle.</p>
+  <main class="px-4 mt-16 text-center">
+    <h1 class="text-6xl font-bold mb-6">Visualize your<br />spending effortlessly</h1>
+
+    <p class="text-lg max-w-xl mx-auto mb-6 text-gray-300">
+      CostScope helps you track, organize, and visualize your expenses with clarity. 
+      Upload CSVs, analyze trends, and take control of your budget in seconds.
+    </p>
 
     {% if current_user.is_authenticated %}
-      <a href="{{ url_for('main.upload') }}" class="btn">Go to Expense Entry</a>
-      <a href="{{ url_for('main.visualise') }}" class="btn">View Stats</a> 
-      <a href="{{ url_for('main.share_data') }}" class="btn">Share Data</a>
-      <a href="{{ url_for('main.shared_with_me') }}" class="btn">View Shared With Me</a>
-      <a href="{{ url_for('main.logout') }}" class="btn">Logout</a>
+      <a href="{{ url_for('main.upload') }}" 
+         class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1">
+         Go to Dashboard →
+      </a>
     {% else %}
-      <a href="{{ url_for('main.login') }}" class="btn">Login</a>
-      <a href="{{ url_for('main.register') }}" class="btn">Create Account</a>
+      <a href="{{ url_for('main.login') }}" 
+         class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1">
+         Get Started →
+      </a>
     {% endif %}
+  </main>
+
+  <!-- Feature Icons Section -->
+  <div class="mt-24 mb-32 grid grid-cols-2 md:grid-cols-5 gap-y-14 gap-x-6 justify-items-center text-white text-sm">
+    <div class="flex flex-col items-center text-center">
+      <div class="mb-2">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18M9 3v18M15 3v18" />
+        </svg>
+      </div>
+      <span>Track your<br>spending</span>
+    </div>
+
+    <div class="flex flex-col items-center text-center">
+      <div class="mb-2">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M9 17v-6M15 17V9" />
+        </svg>
+      </div>
+      <span>Visualize<br>your expenses</span>
+    </div>
+
+    <div class="flex flex-col items-center text-center">
+      <div class="mb-2">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16l-4-4h3V4h2v8h3l-4 4z" />
+        </svg>
+      </div>
+      <span>Import from<br>CSV files</span>
+    </div>
+
+    <div class="flex flex-col items-center text-center">
+      <div class="mb-2">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12v1m0 4h.01m-6.938 4h13.856C19.07 20 20 19.105 20 18V8a2 2 0 00-2-2h-1V5a3 3 0 10-6 0v1H6a2 2 0 00-2 2v10c0 1.105.93 2 2.062 2z" />
+        </svg>
+      </div>
+      <span>Secure &<br>private</span>
+    </div>
+
+    <div class="flex flex-col items-center text-center">
+      <div class="mb-2">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4-1.343 4-3-1.79-3-4-3z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8-9h1M3 12H2m15.364-6.364l.707.707M4.929 19.071l.707.707M4.929 4.929l.707.707M19.071 19.071l.707.707" />
+        </svg>
+      </div>
+      <span>Completely<br>free</span>
+    </div>
   </div>
+
+  <div class="bottom-glow"></div>
 {% endblock %}
