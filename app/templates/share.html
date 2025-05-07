@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto text-white p-6 space-y-8">
+
+  <h1 class="text-3xl font-semibold">Share Your Analytics</h1>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="bg-green-600 text-white text-sm p-3 rounded">
+        {% for m in messages %}
+          {{ m }}
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Share Form -->
+  <form method="POST" action="{{ url_for('main.share_data') }}" class="space-y-4 bg-[#1e1e1e] p-6 rounded-xl border border-[#333]">
+    <div>
+      <label class="block mb-1 text-sm">Recipient Username</label>
+      <input name="recipient" class="w-full p-2 bg-[#2a2a2a] rounded" required />
+    </div>
+    <div>
+      <label class="block mb-1 text-sm">Report Title</label>
+      <input name="title" class="w-full p-2 bg-[#2a2a2a] rounded" required />
+    </div>
+    <div>
+      <label class="block mb-1 text-sm">Permission</label>
+      <select name="permission" class="w-full p-2 bg-[#2a2a2a] rounded">
+        <option value="view">View Only</option>
+        <option value="comment">Can Comment</option>
+      </select>
+    </div>
+    <button type="submit" class="bg-blue-500 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition">
+      Share
+    </button>
+  </form>
+
+  <!-- Shared Reports Table -->
+  <div class="mt-10">
+    <h2 class="text-xl font-semibold mb-2">Reports You've Shared</h2>
+
+    {% if shared_reports %}
+      <table class="w-full text-sm border border-[#333]">
+        <thead class="bg-[#2a2a2a]">
+          <tr>
+            <th class="p-2 text-left">Recipient</th>
+            <th class="p-2 text-left">Title</th>
+            <th class="p-2 text-left">Permission</th>
+            <th class="p-2 text-left">Shared At</th>
+            <th class="p-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for report in shared_reports %}
+          <tr class="border-t border-[#333]">
+            <td class="p-2">{{ report.recipient_username }}</td>
+            <td class="p-2">{{ report.report_title }}</td>
+            <td class="p-2">{{ report.permission }}</td>
+            <td class="p-2">{{ report.timestamp.strftime('%Y-%m-%d') }}</td>
+            <td class="p-2">
+              <form method="POST" action="{{ url_for('main.revoke_report', report_id=report.id) }}">
+                <button type="submit" class="text-red-500 hover:text-red-700 text-sm font-medium">
+                  Revoke
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-sm text-gray-400">No reports shared yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

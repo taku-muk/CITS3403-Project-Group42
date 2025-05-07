@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto text-white p-6 space-y-8 mt-32">
+  <h1 class="text-3xl font-bold">📬 Reports Shared With You</h1>
+
+  {% if shared_reports %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border border-[#333] mt-6">
+      <thead class="bg-[#2a2a2a] text-left">
+        <tr>
+          <th class="p-3">From</th>
+          <th class="p-3">Title</th>
+          <th class="p-3">Permission</th>
+          <th class="p-3">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in shared_reports %}
+        <tr class="border-t border-[#333] {% if loop.index is even %}bg-[#1b1b1b]{% endif %}">
+          <td class="p-3">{{ report.owner.username }}</td>
+          <td class="p-3">{{ report.report_title }}</td>
+          <td class="p-3">
+            {% if report.permission == 'View only' %}
+              <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs">View Only</span>
+            {% elif report.permission == 'Comment' %}
+              <span class="bg-green-600 text-white px-2 py-1 rounded-full text-xs">Comment</span>
+            {% else %}
+              {{ report.permission }}
+            {% endif %}
+          </td>
+          <td class="p-3">{{ report.timestamp.strftime('%Y-%m-%d') }}</td>
+          <td class="p-2">
+            <a href="{{ url_for('main.view_shared_report', report_id=report.id) }}"
+               class="text-blue-400 underline hover:text-blue-600">View</a>
+          </td>          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-gray-400 mt-6">No reports have been shared with you yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
