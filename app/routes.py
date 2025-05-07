@@ -100,10 +100,16 @@ def visualise():
 
     run_rate_months = round(available_funds / total_expenditure, 2) if available_funds > 0 and total_expenditure > 0 else 0.0
 
-    assets_data = [
-        {'name': exp.type.capitalize(), 'amount': exp.amount, 'progress': 50}
-        for exp in user_expenses if exp.type in ['savings', 'investment', 'debt']
-    ]
+    # Assets + liabilities
+    assets_data = []
+    for exp in user_expenses:
+        if exp.type in ['savings', 'investment', 'debt']:
+            assets_data.append({
+                'name': exp.name,
+                'type': exp.type,  # 👉 pass type separately!
+                'amount': exp.amount,
+                'progress': 50  # placeholder
+            })
 
     tag_totals = defaultdict(float)
     for exp in user_expenses:
