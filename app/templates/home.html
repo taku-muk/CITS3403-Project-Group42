@@ -1,68 +1,131 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Flask App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .bottom-glow {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 350px;
+  background: radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
 
-{% block content %}
-  <main class="px-4 mt-16 text-center">
-    <h1 class="text-6xl font-bold mb-6">Visualize your<br />spending effortlessly</h1>
 
-    <p class="text-lg max-w-xl mx-auto mb-6 text-gray-300">
-      CostScope helps you track, organize, and visualize your expenses with clarity. 
-      Upload CSVs, analyze trends, and take control of your budget in seconds.
-    </p>
+  </style>
+</head>
+<body class="bg-black text-white h-screen flex flex-col justify-center items-center relative text-center ">
 
-    {% if current_user.is_authenticated %}
-      <a href="{{ url_for('main.upload') }}" 
-         class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1">
-         Go to Dashboard →
-      </a>
-    {% else %}
-      <a href="{{ url_for('main.login') }}" 
-         class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1">
-         Get Started →
-      </a>
-    {% endif %}
-  </main>
+    <header class="absolute top-5 w-full px-10 flex justify-between items-center px-20">
+        <!-- Left: Logo + Icon -->
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none"
+               viewBox="0 0 24 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true" focusable="false">
+            <path d="M20 12v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" />
+            <path d="M18 12h.01" />
+          </svg>
+          <strong class="text-2xl font-bold">CostScope</strong>
+        </div>
+      
+        <!-- Center: Navigation -->
+        <nav class="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm font-semibold">
+          <!-- Active Link -->
+          <a href="{{ url_for('main.home') }}" class="text-white underline underline-offset-4">Home</a>
+        
+          <!-- Other Links -->
+          <a href="{{ url_for('main.upload') }}" class="text-gray-300 hover:text-white transition">Upload</a>
+          <a href="{{ url_for('main.visualise') }}" class="text-gray-300 hover:text-white transition">Visualize</a>
+          
+        </nav>
+        
+          
+        <!-- Right: Login + Button -->
+        <div class="flex items-center gap-4">
+          <span class="text-sm">Login</span>
+<a href="{{ url_for('main.register') }}" 
+   class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition">
+  Sign Up
+</a>
 
+
+        </div>
+      </header>
+      
+
+      <main class="px-4 mt-16 text-center">
+        <h1 class="text-6xl font-bold mb-6">Visualize your<br />spending effortlessly</h1>
+        
+        <p class="text-lg max-w-xl mx-auto mb-6 text-gray-300">
+          CostScope helps you track, organize, and visualize your expenses with clarity. 
+          Upload CSVs, analyze trends, and take control of your budget in seconds.
+        </p>
+        <a href="{{ url_for('main.login') }}" 
+        class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1">
+       Get Started →
+     </a>
+     
+     
+
+      </main>
+      
   <!-- Feature Icons Section -->
   <div class="mt-24 mb-32 grid grid-cols-2 md:grid-cols-5 gap-y-14 gap-x-6 justify-items-center text-white text-sm">
+
+    <!-- 1. Track Spending -->
     <div class="flex flex-col items-center text-center">
       <div class="mb-2">
-        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Example SVG Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18M9 3v18M15 3v18" />
         </svg>
       </div>
       <span>Track your<br>spending</span>
     </div>
-
+  
+    <!-- 2. Visual Reports -->
     <div class="flex flex-col items-center text-center">
       <div class="mb-2">
-        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M9 17v-6M15 17V9" />
         </svg>
       </div>
       <span>Visualize<br>your expenses</span>
     </div>
-
+  
+    <!-- 3. Import CSV -->
     <div class="flex flex-col items-center text-center">
       <div class="mb-2">
-        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16l-4-4h3V4h2v8h3l-4 4z" />
         </svg>
       </div>
       <span>Import from<br>CSV files</span>
     </div>
-
+  
+    <!-- 4. Privacy -->
     <div class="flex flex-col items-center text-center">
       <div class="mb-2">
-        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12v1m0 4h.01m-6.938 4h13.856C19.07 20 20 19.105 20 18V8a2 2 0 00-2-2h-1V5a3 3 0 10-6 0v1H6a2 2 0 00-2 2v10c0 1.105.93 2 2.062 2z" />
         </svg>
       </div>
       <span>Secure &<br>private</span>
     </div>
-
+  
+    <!-- 5. Free -->
     <div class="flex flex-col items-center text-center">
       <div class="mb-2">
-        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4-1.343 4-3-1.79-3-4-3z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8-9h1M3 12H2m15.364-6.364l.707.707M4.929 19.071l.707.707M4.929 4.929l.707.707M19.071 19.071l.707.707" />
         </svg>
@@ -70,6 +133,10 @@
       <span>Completely<br>free</span>
     </div>
   </div>
+  
+  
+  
 
   <div class="bottom-glow"></div>
-{% endblock %}
+</body>
+</html>
