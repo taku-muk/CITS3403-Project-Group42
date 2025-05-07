@@ -48,17 +48,29 @@
           
         </nav>
         
-          
-        <!-- Right: Login + Button -->
-        <div class="flex items-center gap-4">
-          <span class="text-sm">Login</span>
-<a href="{{ url_for('main.register') }}" 
-   class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition">
-  Sign Up
-</a>
+       
+ <!-- Right: Login or User Info -->
+<div class="flex items-center gap-4">
+  {% if current_user.is_authenticated %}
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full border border-white flex items-center justify-center font-bold text-white">
+        {{ current_user.username[:2]|upper }}
+      </div>
+      <span class="text-sm font-semibold">{{ current_user.username }}</span>
+      <a href="{{ url_for('main.logout') }}"
+         class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-full transition">
+        Logout
+      </a>
+    </div>
+  {% else %}
+    <a href="{{ url_for('main.login') }}" class="text-sm text-white hover:underline">Login</a>
+    <a href="{{ url_for('main.register') }}"
+       class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-full transition">
+      Sign Up
+    </a>
+  {% endif %}
+</div>
 
-
-        </div>
       </header>
       
 
