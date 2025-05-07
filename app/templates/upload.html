@@ -65,6 +65,22 @@
     .tag-pill.Once\-off {
       @apply bg-orange-700 text-orange-300 border-orange-300;
     }
+    select option {
+    background-color: #1e1e1e;
+     color: white;
+    }
+
+    /* Fix browser autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  box-shadow: 0 0 0px 1000px #1e1e1e inset;
+  -webkit-text-fill-color: white;
+}
+
 </style>
 
   
