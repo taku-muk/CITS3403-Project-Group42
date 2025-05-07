@@ -173,10 +173,38 @@ def cashflow():
 
 # -------------------------- Sharing --------------------------
 
-@main.route('/share')
+@main.route('/share', methods=['GET', 'POST'])
 @login_required
 def share_data():
+    if request.method == 'POST':
+        recipient_username = request.form.get('recipient_username')
+        title = request.form.get('title') or "Shared Report"
+
+        if not recipient_username:
+            flash("❌ Recipient username is required.", "error")
+            return redirect(url_for('main.share_data'))
+
+        if recipient_username == current_user.username:
+            flash("❌ You cannot share a report with yourself.", "error")
+            return redirect(url_for('main.share_data'))
+
+        recipient = User.query.filter_by(username=recipient_username).first()
+        if not recipient:
+            flash("❌ No user with that username was found.", "error")
+            return redirect(url_for('main.share_data'))
+
+        shared_report = SharedReport(
+            sender_id=current_user.id,
+            recipient_username=recipient_username,
+            title=title
+        )
+        db.session.add(shared_report)
+        db.session.commit()
+        flash(f"✅ Shared report with {recipient_username}!", "success")
+        return redirect(url_for('main.share_data'))
+
     return render_template('share.html')
+
 
 
 @main.route('/shared-with-me')
