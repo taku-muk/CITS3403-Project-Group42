@@ -17,7 +17,8 @@
 <body class="bg-black text-white min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="w-full px-10 py-4 flex justify-between items-center bg-black">
+  <header class="relative w-full px-10 py-4 flex justify-between items-center bg-black">
+    <!-- Left: Logo -->
     <div class="flex items-center gap-3">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none"
            viewBox="0 0 24 24" stroke="white" stroke-width="2">
@@ -26,7 +27,15 @@
       </svg>
       <strong class="text-2xl font-bold">CostScope</strong>
     </div>
-
+  
+    <!-- Center: Nav Links -->
+    <nav class="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm font-semibold">
+      <a href="{{ url_for('main.home') }}" class="text-white underline underline-offset-4">Home</a>
+      <a href="{{ url_for('main.upload') }}" class="text-gray-300 hover:text-white transition">Upload</a>
+      <a href="{{ url_for('main.visualise') }}" class="text-gray-300 hover:text-white transition">Visualize</a>
+    </nav>
+  
+    <!-- Right: Auth Buttons -->
     <div class="flex items-center gap-4">
       {% if current_user.is_authenticated %}
         <div class="flex items-center gap-2">
@@ -48,6 +57,7 @@
       {% endif %}
     </div>
   </header>
+  
 
   <!-- Page Content -->
   <main class="flex-grow px-4 py-10">
