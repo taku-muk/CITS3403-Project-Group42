@@ -6,23 +6,23 @@ export function renderTopCards(values) {
     grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6';
   
     const cards = [
-        { title: 'Total Income', value: `$${values.totalIncome}` },
-        { title: 'Total Expenditure', value: `$${values.totalExpenditure}` },
-        { title: 'Net Income', value: `$${values.netIncome}` },
-        { title: 'Run Rate', value: `${values.runRate} Months` }
+      { title: 'Total Income', value: `$${values.totalIncome.toFixed(2)}` },
+      { title: 'Total Expenditure', value: `$${values.totalExpenditure.toFixed(2)}` },
+      { title: 'Net Income', value: `$${values.netIncome.toFixed(2)}` },
+      { title: 'Runway (months)', value: `${values.runRate.toFixed(2)} mo` }
     ];
   
-    cards.forEach(card => {
-        const div = document.createElement('div');
-        div.className = 'bg-[#1e1e1e] p-5 rounded-xl border border-[#333] flex flex-col justify-between h-32';
+    for (const { title, value } of cards) {
+      const card = document.createElement('div');
+      card.className = 'bg-[#1e1e1e] p-6 rounded-xl shadow-lg border border-[#333]';
   
-        div.innerHTML = `
-            <p class="text-[#838383] text-sm">${card.title}</p>
-            <h2 class="text-2xl font-bold">${card.value}</h2>
-        `;
+      card.innerHTML = `
+        <h3 class="text-sm text-gray-400 mb-1">${title}</h3>
+        <p class="text-2xl font-semibold text-white">${value}</p>
+      `;
   
-        grid.appendChild(div);
-    });
+      grid.appendChild(card);
+    }
   
     container.appendChild(grid);
   }

@@ -177,38 +177,93 @@ def cashflow():
 @login_required
 def share_data():
     if request.method == 'POST':
-        recipient_username = request.form.get('recipient_username')
-        title = request.form.get('title') or "Shared Report"
+        recipient = request.form.get('recipient', '').strip()
+        title = request.form.get('title', '').strip()
+        permission = request.form.get('permission', '').strip()
 
-        if not recipient_username:
-            flash("❌ Recipient username is required.", "error")
-            return redirect(url_for('main.share_data'))
-
-        if recipient_username == current_user.username:
-            flash("❌ You cannot share a report with yourself.", "error")
-            return redirect(url_for('main.share_data'))
-
-        recipient = User.query.filter_by(username=recipient_username).first()
+        # Validate inputs
         if not recipient:
-            flash("❌ No user with that username was found.", "error")
+            flash("❌ Recipient username is required.")
+            return redirect(url_for('main.share_data'))
+        if not title:
+            flash("❌ Report title is required.")
             return redirect(url_for('main.share_data'))
 
-        shared_report = SharedReport(
-            sender_id=current_user.id,
-            recipient_username=recipient_username,
-            title=title
+        if recipient == current_user.username:
+            flash("❌ You cannot share with yourself.")
+            return redirect(url_for('main.share_data'))
+
+        # Check if recipient exists
+        recipient_user = User.query.filter_by(username=recipient).first()
+        if not recipient_user:
+            flash("❌ Recipient user not found.")
+            return redirect(url_for('main.share_data'))
+
+        # Save to DB
+        new_report = SharedReport(
+            owner_id=current_user.id,
+            recipient_username=recipient,
+            report_title=title,
+            permission=permission
         )
-        db.session.add(shared_report)
+        db.session.add(new_report)
         db.session.commit()
-        flash(f"✅ Shared report with {recipient_username}!", "success")
+
+        flash("✅ Report shared successfully!")
         return redirect(url_for('main.share_data'))
 
-    return render_template('share.html')
+    # For GET request, show the page
+    sent_reports = SharedReport.query.filter_by(owner_id=current_user.id).order_by(SharedReport.timestamp.desc()).all()
+    return render_template('share.html', shared_reports=sent_reports)
 
 
+@main.route('/shared-report/<int:report_id>')
+@login_required
+def view_shared_report(report_id):
+    shared = SharedReport.query.get_or_404(report_id)
+
+    if shared.recipient_username != current_user.username:
+        flash("❌ You are not authorized to view this report.")
+        return redirect(url_for('main.shared_with_me'))
+
+    # Load the owner's expenses
+    owner_expenses = Expense.query.filter_by(user_id=shared.owner_id).all()
+
+    # Compute the same stats as /visualise
+    total_income = sum(e.amount for e in owner_expenses if e.type == 'income')
+    total_expenditure = sum(e.amount for e in owner_expenses if e.type == 'expense')
+    net_income = total_income - total_expenditure
+    total_savings = sum(e.amount for e in owner_expenses if e.type in ['savings', 'investment'])
+    available_funds = total_savings + net_income
+    run_rate = round(available_funds / total_expenditure, 2) if total_expenditure else 0.0
+
+    return render_template(
+        'shared_visualise.html',
+        report=shared,
+        stats={
+            'totalIncome': total_income,
+            'totalExpenditure': total_expenditure,
+            'netIncome': net_income,
+            'runRate': run_rate
+        }
+    )
+
+@main.route('/revoke/<int:report_id>', methods=['POST'])
+@login_required
+def revoke_report(report_id):
+    report = SharedReport.query.get_or_404(report_id)
+
+    if report.sender_id != current_user.id:
+        flash("❌ You can only revoke reports you shared.", "error")
+        return redirect(url_for('main.share_data'))
+
+    db.session.delete(report)
+    db.session.commit()
+    flash("✅ Report access revoked.", "success")
+    return redirect(url_for('main.share_data'))
 
 @main.route('/shared-with-me')
 @login_required
 def shared_with_me():
-    reports = SharedReport.query.filter_by(recipient_username=current_user.username).all()
+    reports = SharedReport.query.filter_by(recipient_username=current_user.username).order_by(SharedReport.timestamp.desc()).all()
     return render_template('shared_with_me.html', shared_reports=reports)
