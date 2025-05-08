@@ -1,7 +1,6 @@
+import { renderProjectionView } from "/static/js/assets_liabilities_projection.js";
 
-
- 
-export function renderAssetsAndLiabilities(assets) {
+export function renderAssetsAndLiabilities(assets,viewMode) {
   const container = document.getElementById('assets-liabilities');
   container.innerHTML = '';
   console.log('assets:', assets);
@@ -17,7 +16,6 @@ export function renderAssetsAndLiabilities(assets) {
     }
     aggregated[displayKey].amount += asset.amount;
   });
-  
 
   // Ensure all categories exist
   ['Savings', 'Investment', 'Debt'].forEach(type => {
@@ -32,13 +30,62 @@ export function renderAssetsAndLiabilities(assets) {
   const netWorth = (savings + investment) - debt;
 
   const outer = document.createElement('div');
-  outer.className = 'bg-[#151515] p-6 rounded-xl border border-[#333] space-y-6';
+  outer.className = 'relative bg-[#151515] p-6 rounded-xl border border-[#333] space-y-6';
+
+
+// 🔥 Create a flex container to hold heading and button
+  const headingWrapper = document.createElement('div');
+  headingWrapper.className = 'flex justify-between items-center mb-4';
 
   const heading = document.createElement('h2');
-  heading.className = 'text-2xl font-bold mb-4';
+  heading.className = 'text-2xl font-bold';
   heading.innerText = `Net Worth: $${netWorth}`;
-  outer.appendChild(heading);
 
+  const toggleContainer = document.createElement('div');
+  toggleContainer.className = 'flex gap-1';  // closer together
+
+  const listBtn = document.createElement('button');
+  listBtn.className = `flex items-center justify-center bg-transparent p-2 ${viewMode === 'list' ? 'border-b-2 border-white' : ''}`;
+
+
+  const listIcon = lucide.createElement(lucide.List);
+  listIcon.setAttribute('width', '20');
+  listIcon.setAttribute('height', '20');
+  listIcon.setAttribute('stroke', viewMode === 'list' ? 'white' : '#888');
+  listIcon.setAttribute('stroke-width', '2.5');
+
+  listBtn.appendChild(listIcon);
+
+  const chartBtn = document.createElement('button');
+  chartBtn.className = `flex items-center justify-center bg-transparent p-2 ${viewMode === 'projection' ? 'border-b-2 border-white' : ''}`;
+
+  const chartIcon = lucide.createElement(lucide.BarChart2);
+  chartIcon.setAttribute('width', '20');
+  chartIcon.setAttribute('height', '20');
+  chartIcon.setAttribute('stroke', viewMode === 'projection' ? 'white' : '#888');
+  chartIcon.setAttribute('stroke-width', '2.5');
+
+  chartBtn.appendChild(chartIcon);
+
+  listBtn.addEventListener('click', () => {
+    if (viewMode !== 'list') renderAssetsAndLiabilities(assets, 'list');
+  });
+
+  chartBtn.addEventListener('click', () => {
+    if (viewMode !== 'projection') renderAssetsAndLiabilities(assets, 'projection');
+  });
+
+  toggleContainer.appendChild(listBtn);
+  toggleContainer.appendChild(chartBtn);
+
+  headingWrapper.appendChild(heading);
+  headingWrapper.appendChild(toggleContainer);
+
+
+  // ✅ Now append wrapper to outer
+  outer.appendChild(headingWrapper);
+
+ 
   const grid = document.createElement('div');
   grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
 
@@ -56,82 +103,78 @@ export function renderAssetsAndLiabilities(assets) {
 
     grid.appendChild(card);
   });
-
   outer.appendChild(grid);
 
-  // ✅ NEW: detailed list of individual assets under cards
+
+
+  // ✅ List / projection toggle area
   const listWrapper = document.createElement('div');
-  listWrapper.className = 'mt-8 space-y-4';
-  
-  // title
-  const sectionTitle = document.createElement('h3');
-  sectionTitle.className = 'text-lg font-semibold text-white';
-  sectionTitle.innerHTML = `My Assets and Liabilities <span class="text-[#888] text-sm">(${assets.length})</span>`;
-
-  listWrapper.appendChild(sectionTitle);
-  
-  // List container
-  const ul = document.createElement('ul');
-  ul.className = 'space-y-4';
-  
-  // icons for each type
-  const icons = {
-    savings: lucide.createElement(lucide.Wallet),
-    investment: lucide.createElement(lucide.TrendingUp),
-    debt: lucide.createElement(lucide.Landmark)
-  };
-  
-  
-  // for each asset (individual entries, not aggregated)
-  assets.forEach(asset => {
-    const li = document.createElement('li');
-    li.className = 'flex items-center justify-between p-1'; // no bg, no border
-  
-    // left side: icon + name
-    const left = document.createElement('div');
-    left.className = 'flex items-center gap-2'; // small gap between icon and name
-  
-    const iconSvg = icons[asset.type.toLowerCase()] || lucide.createElement(lucide.HelpCircle);
-     iconSvg.setAttribute('stroke', 'white'); // optional: customize color
-     iconSvg.setAttribute('width', '20');     // optional: size
-     iconSvg.setAttribute('height', '20');
 
 
-     const iconWrapper = document.createElement('div');
-     iconWrapper.className = 'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
-     iconWrapper.appendChild(iconSvg);
 
-     left.appendChild(iconWrapper);
+  outer.appendChild(listWrapper);
+
+  // 🏆 toggle logic
+  if (viewMode === 'list') {
+    const ul = document.createElement('ul');
+    ul.className = 'space-y-4';
+  
+   
+  
+ 
+  
+    const icons = {
+      savings: lucide.createElement(lucide.Wallet),
+      investment: lucide.createElement(lucide.TrendingUp),
+      debt: lucide.createElement(lucide.Landmark)
+    };
+  
+    assets.forEach(asset => {
+      const li = document.createElement('li');
+      li.className = 'flex items-center justify-between ';
+  
+      const left = document.createElement('div');
+      left.className = 'flex items-center gap-2';
+  
+      const iconSvg = icons[asset.type.toLowerCase()] || lucide.createElement(lucide.HelpCircle);
+      iconSvg.setAttribute('stroke', 'white');
+      iconSvg.setAttribute('width', '20');
+      iconSvg.setAttribute('height', '20');
+  
+      const iconWrapper = document.createElement('div');
+      iconWrapper.className = 'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
+      iconWrapper.appendChild(iconSvg);
+  
+      left.appendChild(iconWrapper);
+  
+      const nameText = document.createElement('div');
+      nameText.className = 'text-sm text-white';
+      nameText.textContent = asset.name;
+      left.appendChild(nameText);
+  
+      const amount = document.createElement('div');
+      amount.className = `text-sm ${
+        asset.type.toLowerCase() === 'investment' ? 'text-green-300'
+        : asset.type.toLowerCase() === 'debt' ? 'text-red-300'
+        : 'text-green-300'
+      }`;
+  
+      const amountPrefix = asset.type.toLowerCase() === 'debt' ? '-' : '+';
+      amount.textContent = `${amountPrefix} $${asset.amount}`;
+  
+      li.appendChild(left);
+      li.appendChild(amount);
+  
+      ul.appendChild(li);
+    });
+  
+    listWrapper.appendChild(ul);
+    
+
+  } else if (viewMode === 'projection') {
+    renderProjectionView(assets, listWrapper); // 🔥 inject chart into wrapper
+  }
 
 
-  
-    const nameText = document.createElement('div');
-    nameText.className = 'text-sm text-white';
-    nameText.textContent = asset.name;
-
-    left.appendChild(nameText);
-  
-    const amount = document.createElement('div');
-     amount.className = `text-sm ${
-     asset.type.toLowerCase() === 'investment' ? 'text-green-300'
-  : asset.type.toLowerCase() === 'debt' ? 'text-red-300'
-  : 'text-green-300'
-}`;
-
-    const amountPrefix = asset.type.toLowerCase() === 'debt' ? '-' : '+';
-    amount.textContent = `${amountPrefix} $${asset.amount}`;
-  
-    li.appendChild(left);
-    li.appendChild(amount);
-  
-    ul.appendChild(li);
-  });
-  
-  
-  
-  listWrapper.appendChild(ul);
-outer.appendChild(listWrapper);
-container.appendChild(outer);  // ✅ this attaches everything to DOM
-
-  
+  container.appendChild(outer);
 }
