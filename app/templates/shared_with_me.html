@@ -84,11 +84,13 @@
 
         <div class="grid grid-cols-3 gap-6">
           <!-- Create New Report Card -->
-          <div class="relative group border border-[#333333] rounded-xl aspect-[4/3] flex items-center justify-center cursor-pointer hover:border-[#444] transition">
-            <span class="text-[#666666] text-center group-hover:text-white transition text-lg leading-tight">
-              +<br>Create New Report
-            </span>
-          </div>
+          <a href="{{ url_for('main.login') }}"
+          class="relative group border border-[#333333] rounded-xl aspect-[4/3] flex items-center justify-center
+                 hover:border-[#444] transition cursor-pointer overflow-hidden">
+         <span class="text-[#666666] text-center group-hover:text-white transition text-lg leading-tight">
+           +<br>Create New Report
+         </span>
+       </a>
 
           <!-- Existing Report Card -->
           <div class="relative border border-[#333333] rounded-xl aspect-[4/3] flex flex-col justify-end hover:border-[#444] cursor-pointer overflow-hidden">
