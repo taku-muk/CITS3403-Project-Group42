@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your Reports</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 
 <body class="bg-[#151515] text-white min-h-screen">
@@ -13,11 +15,7 @@
   <header class="relative w-full px-10 py-4 flex justify-between items-center bg-[#151515] ">
     <!-- Left: Logo -->
     <div class="flex items-center gap-3">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none"
-           viewBox="0 0 24 24" stroke="white" stroke-width="2">
-        <path d="M20 12v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" />
-        <path d="M18 12h.01" />
-      </svg>
+      <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
       <strong class="text-2xl font-bold text-white">CostScope</strong>
     </div>
 
@@ -145,6 +143,11 @@
 
     </div>
   </div>
+
+  
+  <script>
+    lucide.createIcons();
+  </script>
 
 </body>
 </html>

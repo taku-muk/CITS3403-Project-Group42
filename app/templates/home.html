@@ -22,18 +22,14 @@
 
 
   </style>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-black text-white h-screen flex flex-col justify-center items-center relative text-center ">
 
     <header class="absolute top-5 w-full px-10 flex justify-between items-center px-20">
         <!-- Left: Logo + Icon -->
         <div class="flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none"
-               viewBox="0 0 24 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-               aria-hidden="true" focusable="false">
-            <path d="M20 12v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" />
-            <path d="M18 12h.01" />
-          </svg>
+          <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
           <strong class="text-2xl font-bold">CostScope</strong>
         </div>
       
@@ -159,5 +155,9 @@
   
 
   <div class="bottom-glow"></div>
+  <script>
+    lucide.createIcons();
+  </script>
+
 </body>
 </html>
