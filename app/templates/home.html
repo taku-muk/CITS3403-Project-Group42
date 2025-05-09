@@ -81,10 +81,19 @@
           CostScope helps you track, organize, and visualize your expenses with clarity. 
           Upload CSVs, analyze trends, and take control of your budget in seconds.
         </p>
-        <a href="{{ url_for('main.login') }}" 
-        class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1">
-       Get Started →
-     </a>
+        <div class="flex justify-center gap-4">
+          <a href="{{ url_for('main.login') }}" 
+             class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1">
+            Start Creating →
+          </a>
+        
+          <a href="{{ url_for('main.visualise') }}"
+             class="border border-white text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1 hover:bg-white hover:text-black">
+            View Reports
+          </a>
+        </div>
+        
+        
      
      
 
