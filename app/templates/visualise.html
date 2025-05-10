@@ -5,12 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   
 </head>
 
 
 
 <body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
+  <header class="relative w-full px-10 py-4 flex justify-between items-center bg-[#151515] ">
+    <!-- Left: Logo -->
+    <div class="flex items-center gap-3">
+      <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
+      <strong class="text-2xl font-bold text-white">CostScope</strong>
+    </div>
+
+    <!-- Center: Nav Links -->
+    <nav class="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm font-semibold">
+      <a href="{{ url_for('main.home') }}"
+         class="{% if request.endpoint == 'main.home' %}text-white underline underline-offset-4{% else %}text-[#cccccc] hover:text-white transition{% endif %}">
+        Home
+      </a>
+      <a href="{{ url_for('main.upload') }}"
+         class="{% if request.endpoint == 'main.upload' %}text-white underline underline-offset-4{% else %}text-[#cccccc] hover:text-white transition{% endif %}">
+        Upload
+      </a>
+      <a href="{{ url_for('main.visualise') }}"
+         class="{% if request.endpoint == 'main.visualise' %}text-white underline underline-offset-4{% else %}text-[#cccccc] hover:text-white transition{% endif %}">
+        Visualize
+      </a>
+    </nav>
+    
+
+    <!-- Right: Auth Buttons -->
+    <div class="flex items-center gap-4">
+      {% if current_user.is_authenticated %}
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full border border-[#666666] flex items-center justify-center font-bold text-white">
+            {{ current_user.username[:2]|upper }}
+          </div>
+          <span class="text-sm font-semibold text-white">{{ current_user.username }}</span>
+          <a href="{{ url_for('main.logout') }}"
+             class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-full transition">
+            Logout
+          </a>
+        </div>
+      {% else %}
+        <a href="{{ url_for('main.login') }}" class="text-sm text-white hover:underline">Login</a>
+        <a href="{{ url_for('main.register') }}"
+           class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-full transition">
+          Sign Up
+        </a>
+      {% endif %}
+    </div>
+  </header>
+
 
   <!-- Main Container -->
 

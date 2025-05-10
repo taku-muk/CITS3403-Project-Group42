@@ -232,27 +232,74 @@ def view_shared_report(report_id):
         flash("❌ You are not authorized to view this report.")
         return redirect(url_for('main.shared_with_me'))
 
-    # Load the owner's expenses
+    # 👇 Load the owner's expenses
     owner_expenses = Expense.query.filter_by(user_id=shared.owner_id).all()
 
-    # Compute the same stats as /visualise
+    # ✅ replicate /visualise logic
     total_income = sum(e.amount for e in owner_expenses if e.type == 'income')
     total_expenditure = sum(e.amount for e in owner_expenses if e.type == 'expense')
     net_income = total_income - total_expenditure
     total_savings = sum(e.amount for e in owner_expenses if e.type in ['savings', 'investment'])
     available_funds = total_savings + net_income
-    run_rate = round(available_funds / total_expenditure, 2) if total_expenditure else 0.0
+    run_rate_months = round(available_funds / total_expenditure, 2) if available_funds > 0 and total_expenditure > 0 else 0.0
+
+    # assets + liabilities
+    assets_data = []
+    for exp in owner_expenses:
+        if exp.type in ['savings', 'investment', 'debt']:
+            assets_data.append({
+                'name': exp.name,
+                'type': exp.type,
+                'amount': exp.amount,
+                'progress': 50  # placeholder
+            })
+
+    tag_totals = defaultdict(float)
+    for exp in owner_expenses:
+        if exp.type == 'expense':
+            try:
+                tags = json.loads(exp.tags) if exp.tags else {}
+                importance_tags = tags.get('importance', [])
+                if isinstance(importance_tags, str):
+                    importance_tags = [importance_tags]
+                for tag in importance_tags:
+                    tag_totals[tag] += exp.amount
+            except Exception:
+                tag_totals['Uncategorized'] += exp.amount
+
+    leftover = max(0, total_income - sum(tag_totals.values()))
+
+    chart_data = {
+        'totalIncome': total_income,
+        'tagTotals': dict(tag_totals),
+        'leftover': leftover
+    }
+    dashboard_stats = {
+    'totalIncome': total_income,
+    'totalExpenditure': total_expenditure,
+    'netIncome': net_income,
+    'runRate': run_rate_months,
+    'availableFunds': available_funds,
+    'assetsData': assets_data,
+    'tagTotals': dict(tag_totals),
+    'leftover': leftover
+}
+
 
     return render_template(
-        'shared_visualise.html',
-        report=shared,
-        stats={
-            'totalIncome': total_income,
-            'totalExpenditure': total_expenditure,
-            'netIncome': net_income,
-            'runRate': run_rate
-        }
+        'visualise.html',  # ✅ same template
+        report=shared,     # optional info to say "shared report"
+        user_expenses=owner_expenses,
+        assets_data=assets_data,
+        chart_data=chart_data,
+        total_income=total_income,
+        total_expenditure=total_expenditure,
+        net_income=net_income,
+        run_rate_months=run_rate_months,
+        available_funds=available_funds,
+        dashboard_stats=dashboard_stats
     )
+
 
 @main.route('/revoke/<int:report_id>', methods=['POST'])
 @login_required
