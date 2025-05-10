@@ -8,8 +8,6 @@
   
 </head>
 
-
-
 <body class="bg-[#151515] text-white min-h-screen flex flex-col items-center p-6">
 
   <!-- Main Container -->
@@ -26,7 +24,6 @@
         
       </div>
     <div class="flex flex-col gap-8">
-
       <!-- Top Cards (filled by JS) -->
       <div id="top-cards"></div>
 
@@ -38,12 +35,60 @@
 
       <!-- Assets and Liabilities (filled by JS) -->
       <div id="assets-liabilities"></div>
-    
 
+      <!-- What-if City Simulator -->
+      <div class="bg-[#1e1e1e] border border-[#333] rounded-xl p-6 mt-8">
+        <h2 class="text-2xl font-bold mb-4">🔍 What-if City Simulator</h2>
+
+        <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
+          <label for="incomeInput" class="text-lg">Your Annual Income (AUD):</label>
+
+          <select id="incomeBracket" class="p-2 rounded bg-[#111] border border-[#444] text-white w-64">
+            <option value="">Select income range</option>
+            <option value="20000">$20,000 – $39,999</option>
+            <option value="40000">$40,000 – $59,999</option>
+            <option value="60000">$60,000 – $79,999</option>
+            <option value="80000">$80,000 – $99,999</option>
+            <option value="100000">$100,000 – $119,999</option>
+            <option value="120000">$120,000 – $139,999</option>
+            <option value="140000">$140,000 – $159,999</option>
+            <option value="160000">$160,000 – $179,999</option>
+            <option value="180000">$180,000 – $199,999</option>
+            <option value="200000">$200,000 – $219,999</option>
+            <option value="220000">$220,000 – $239,999</option>
+            <option value="240000">$240,000 – $259,999</option>
+            <option value="260000">$260,000 – $279,999</option>
+            <option value="280000">$280,000 – $299,999</option>
+            <option value="300000">$300,000 – $319,999</option>
+            <option value="320000">$320,000 – $339,999</option>
+            <option value="340000">$340,000 – $359,999</option>
+            <option value="360000">$360,000 – $379,999</option>
+            <option value="380000">$380,000 – $399,999</option>
+            <option value="400000">$400,000 – $419,999</option>
+            <option value="420000">$420,000 – $439,999</option>
+            <option value="440000">$440,000 – $459,999</option>
+            <option value="460000">$460,000 – $479,999</option>
+            <option value="480000">$480,000 – $499,999</option>
+            <option value="500000">$500,000+</option>
+          </select>
+
+          <label for="citySelect" class="text-lg sm:ml-6">Simulate Living In:</label>
+          <select id="citySelect" class="p-2 rounded bg-[#111] border border-[#444] text-white w-48">
+            <option value="">Select City</option>
+            <option>Sydney</option>
+            <option>Melbourne</option>
+            <option>Brisbane</option>
+            <option>Perth</option>
+            <option>Adelaide</option>
+            <option>Canberra</option>
+            <option>Hobart</option>
+            <option>Darwin</option>
+          </select>
+        </div>
+
+        <div id="simulator-output" class="mt-6 text-white"></div>
+      </div>
     </div>
-
-
- 
 
   <!-- Import JS Modules and Render -->
   <script type="module">
@@ -61,7 +106,34 @@
   <script>
     lucide.createIcons();
   </script>
-  
+
+  <script>
+    document.getElementById('citySelect').addEventListener('change', runSimulation);
+    document.getElementById('incomeBracket').addEventListener('change', runSimulation);
+
+    async function runSimulation() {
+      const income = parseInt(document.getElementById('incomeBracket').value);
+      const city = document.getElementById('citySelect').value;
+
+      if (!income || !city) return;
+
+      const res = await fetch('/static/data/estimated_city_spending.json');
+      const data = await res.json();
+
+      const monthlyCost = data[income][city];
+      const annualCost = monthlyCost * 12;
+      const percentage = ((annualCost / income) * 100).toFixed(1);
+
+      const output = `
+        <h3 class="text-xl font-semibold mb-2">${city}</h3>
+        <p>📅 Estimated monthly cost: <strong>$${monthlyCost.toFixed(2)}</strong></p>
+        <p>📈 Annual cost: <strong>$${annualCost.toFixed(2)}</strong></p>
+        <p>💰 Percentage of income spent: <strong>${percentage}%</strong></p>
+      `;
+
+      document.getElementById('simulator-output').innerHTML = output;
+    }
+  </script>
 
 </body>
 </html>
