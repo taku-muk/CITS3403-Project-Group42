@@ -87,6 +87,35 @@
       <!-- Assets and Liabilities (filled by JS) -->
       <div id="assets-liabilities"></div>
     
+      <!-- What-if City Simulator -->
+      <div class="bg-[#1e1e1e] border border-[#333] rounded-xl p-6 mt-8">
+        <h2 class="text-2xl font-bold mb-4">🔍 What-if City Simulator</h2>
+
+        <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
+          <label for="incomeBracket" class="text-lg">Select Your Income Range:</label>
+          <select id="incomeBracket" class="p-2 rounded bg-[#111] border border-[#444] text-white w-64">
+            <option value="">Select income range</option>
+            {% for income in range(20000, 520000, 20000) %}
+              <option value="{{ income }}">{{ "{:,}".format(income) }} – {{ "{:,}".format(income + 19999) if income < 500000 else '+' }}</option>
+            {% endfor %}
+          </select>
+
+          <label for="citySelect" class="text-lg sm:ml-6">Choose a City:</label>
+          <select id="citySelect" class="p-2 rounded bg-[#111] border border-[#444] text-white w-48">
+            <option value="">Select City</option>
+            <option>Sydney</option>
+            <option>Melbourne</option>
+            <option>Brisbane</option>
+            <option>Perth</option>
+            <option>Adelaide</option>
+            <option>Canberra</option>
+            <option>Hobart</option>
+            <option>Darwin</option>
+          </select>
+        </div>
+
+        <div id="simulator-output" class="mt-6 text-white"></div>
+      </div>
 
     </div>
 
@@ -109,6 +138,41 @@
   <script>
     lucide.createIcons();
   </script>
+  <script>
+  document.getElementById('citySelect').addEventListener('change', runSimulation);
+  document.getElementById('incomeBracket').addEventListener('change', runSimulation);
+
+  async function runSimulation() {
+    const income = parseInt(document.getElementById('incomeBracket').value);
+    const city = document.getElementById('citySelect').value;
+
+    if (!income || !city) return;
+
+    try {
+      const res = await fetch('/static/data/estimated_city_spending.json');
+      const data = await res.json();
+
+      const incomeKey = Object.keys(data).find(k => parseInt(k) === income);
+      if (!incomeKey || !data[incomeKey][city]) {
+        document.getElementById('simulator-output').innerHTML = `<p class="text-red-500">No data available for that combination.</p>`;
+        return;
+      }
+
+      const monthlyCost = data[incomeKey][city];
+      const annualCost = (monthlyCost * 12).toFixed(2);
+      const percentage = ((monthlyCost * 12) / income * 100).toFixed(1);
+
+      document.getElementById('simulator-output').innerHTML = `
+        <h3 class="text-xl font-semibold mb-2">${city}</h3>
+        <p>📅 Estimated monthly cost: <strong>$${monthlyCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
+        <p>📈 Annual cost: <strong>$${parseFloat(annualCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
+        <p>💰 Percentage of income spent: <strong>${percentage}%</strong></p>
+      `;
+    } catch (error) {
+      document.getElementById('simulator-output').innerHTML = `<p class="text-red-500">Failed to load data.</p>`;
+    }
+  }
+</script>
   
 
 </body>

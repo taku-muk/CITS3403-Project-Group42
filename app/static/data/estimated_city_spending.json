@@ -1,0 +1,252 @@
+{
+  "20000": {
+    "Sydney": 611.67,
+    "Melbourne": 561.67,
+    "Brisbane": 530,
+    "Perth": 518,
+    "Adelaide": 550,
+    "Canberra": 560,
+    "Hobart": 628,
+    "Darwin": 436.67
+  },
+  "40000": {
+    "Sydney": 1223,
+    "Melbourne": 1123,
+    "Brisbane": 1060,
+    "Perth": 1036.67,
+    "Adelaide": 1100,
+    "Canberra": 1120,
+    "Hobart": 1256.67,
+    "Darwin": 873
+  },
+  "60000": {
+    "Sydney": 1835,
+    "Melbourne": 1685,
+    "Brisbane": 1590,
+    "Perth": 1555,
+    "Adelaide": 1650,
+    "Canberra": 1680,
+    "Hobart": 1885,
+    "Darwin": 1310
+  },
+  "80000": {
+    "Sydney": 2446.67,
+    "Melbourne": 2246.67,
+    "Brisbane": 2120,
+    "Perth": 2073,
+    "Adelaide": 2200,
+    "Canberra": 2240,
+    "Hobart": 2513,
+    "Darwin": 1746.67
+  },
+  "100000": {
+    "Sydney": 3058,
+    "Melbourne": 2808,
+    "Brisbane": 2650,
+    "Perth": 2591.67,
+    "Adelaide": 2750,
+    "Canberra": 2800,
+    "Hobart": 3141.67,
+    "Darwin": 2183
+  },
+  "120000": {
+    "Sydney": 3670,
+    "Melbourne": 3370,
+    "Brisbane": 3180,
+    "Perth": 3110,
+    "Adelaide": 3300,
+    "Canberra": 3360,
+    "Hobart": 3770,
+    "Darwin": 2620
+  },
+  "140000": {
+    "Sydney": 4281.67,
+    "Melbourne": 3931.67,
+    "Brisbane": 3710,
+    "Perth": 3628,
+    "Adelaide": 3850,
+    "Canberra": 3920,
+    "Hobart": 4398,
+    "Darwin": 3056.67
+  },
+  "160000": {
+    "Sydney": 4893,
+    "Melbourne": 4493,
+    "Brisbane": 4240,
+    "Perth": 4146.67,
+    "Adelaide": 4400,
+    "Canberra": 4480,
+    "Hobart": 5026.67,
+    "Darwin": 3493
+  },
+  "180000": {
+    "Sydney": 5505,
+    "Melbourne": 5055,
+    "Brisbane": 4770,
+    "Perth": 4665,
+    "Adelaide": 4950,
+    "Canberra": 5040,
+    "Hobart": 5655,
+    "Darwin": 3930
+  },
+  "200000": {
+    "Sydney": 6116.67,
+    "Melbourne": 5616.67,
+    "Brisbane": 5300,
+    "Perth": 5183,
+    "Adelaide": 5500,
+    "Canberra": 5600,
+    "Hobart": 6283,
+    "Darwin": 4366.67
+  },
+  "220000": {
+    "Sydney": 6728,
+    "Melbourne": 6178,
+    "Brisbane": 5830,
+    "Perth": 5701.67,
+    "Adelaide": 6050,
+    "Canberra": 6160,
+    "Hobart": 6911.67,
+    "Darwin": 4803
+  },
+  "240000": {
+    "Sydney": 7340,
+    "Melbourne": 6740,
+    "Brisbane": 6360,
+    "Perth": 6220,
+    "Adelaide": 6600,
+    "Canberra": 6720,
+    "Hobart": 7540,
+    "Darwin": 5240
+  },
+  "260000": {
+    "Sydney": 7951.67,
+    "Melbourne": 7301.67,
+    "Brisbane": 6890,
+    "Perth": 6738,
+    "Adelaide": 7150,
+    "Canberra": 7280,
+    "Hobart": 8168,
+    "Darwin": 5676.67
+  },
+  "280000": {
+    "Sydney": 8563,
+    "Melbourne": 7863,
+    "Brisbane": 7420,
+    "Perth": 7256.67,
+    "Adelaide": 7700,
+    "Canberra": 7840,
+    "Hobart": 8796.67,
+    "Darwin": 6113
+  },
+  "300000": {
+    "Sydney": 9175,
+    "Melbourne": 8425,
+    "Brisbane": 7950,
+    "Perth": 7775,
+    "Adelaide": 8250,
+    "Canberra": 8400,
+    "Hobart": 9425,
+    "Darwin": 6550
+  },
+  "320000": {
+    "Sydney": 9786.67,
+    "Melbourne": 8986.67,
+    "Brisbane": 8480,
+    "Perth": 8293,
+    "Adelaide": 8800,
+    "Canberra": 8960,
+    "Hobart": 10053,
+    "Darwin": 6986.67
+  },
+  "340000": {
+    "Sydney": 10398,
+    "Melbourne": 9548,
+    "Brisbane": 9010,
+    "Perth": 8811.67,
+    "Adelaide": 9350,
+    "Canberra": 9520,
+    "Hobart": 10681.67,
+    "Darwin": 7423
+  },
+  "360000": {
+    "Sydney": 11010,
+    "Melbourne": 10110,
+    "Brisbane": 9540,
+    "Perth": 9330,
+    "Adelaide": 9900,
+    "Canberra": 10080,
+    "Hobart": 11310,
+    "Darwin": 7860
+  },
+  "380000": {
+    "Sydney": 11621.67,
+    "Melbourne": 10671.67,
+    "Brisbane": 10070,
+    "Perth": 9848,
+    "Adelaide": 10450,
+    "Canberra": 10640,
+    "Hobart": 11938,
+    "Darwin": 8296.67
+  },
+  "400000": {
+    "Sydney": 12233,
+    "Melbourne": 11233,
+    "Brisbane": 10600,
+    "Perth": 10366.67,
+    "Adelaide": 11000,
+    "Canberra": 11200,
+    "Hobart": 12566.67,
+    "Darwin": 8733
+  },
+  "420000": {
+    "Sydney": 12845,
+    "Melbourne": 11795,
+    "Brisbane": 11130,
+    "Perth": 10885,
+    "Adelaide": 11550,
+    "Canberra": 11760,
+    "Hobart": 13195,
+    "Darwin": 9170
+  },
+  "440000": {
+    "Sydney": 13456.67,
+    "Melbourne": 12356.67,
+    "Brisbane": 11660,
+    "Perth": 11403,
+    "Adelaide": 12100,
+    "Canberra": 12320,
+    "Hobart": 13823,
+    "Darwin": 9606.67
+  },
+  "460000": {
+    "Sydney": 14068,
+    "Melbourne": 12918,
+    "Brisbane": 12190,
+    "Perth": 11921.67,
+    "Adelaide": 12650,
+    "Canberra": 12880,
+    "Hobart": 14451.67,
+    "Darwin": 10043
+  },
+  "480000": {
+    "Sydney": 14680,
+    "Melbourne": 13480,
+    "Brisbane": 12720,
+    "Perth": 12440,
+    "Adelaide": 13200,
+    "Canberra": 13440,
+    "Hobart": 15080,
+    "Darwin": 10480
+  },
+  "500000": {
+    "Sydney": 15291.67,
+    "Melbourne": 14041.67,
+    "Brisbane": 13250,
+    "Perth": 12958,
+    "Adelaide": 13750,
+    "Canberra": 14000,
+    "Hobart": 15708,
+    "Darwin": 10916.67
+  }
+}
