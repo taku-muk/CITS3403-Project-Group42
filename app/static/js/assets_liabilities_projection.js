@@ -2,12 +2,50 @@ export function renderProjectionView(assetsData, targetContainer) {
     targetContainer.innerHTML = '';
   
     const controls = document.createElement('div');
-    controls.className = 'space-y-4 text-white mb-8';
-    controls.innerHTML = `
-      <label>Savings Interest: <input id="savingsRate" type="range" min="0" max="10" value="2" step="0.1" /></label>
-      <label>Investment Return: <input id="investmentRate" type="range" min="0" max="15" value="7" step="0.1" /></label>
-      <label>Debt Growth: <input id="debtRate" type="range" min="0" max="15" value="3" step="0.1" /></label>
-    `;
+    controls.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-white';
+
+    const sliders = [
+      { id: 'savingsRate', label: 'Savings Interest', min: 0, max: 10, value: 2, step: 0.1 },
+      { id: 'investmentRate', label: 'Investment Return', min: 0, max: 15, value: 7, step: 0.1 },
+      { id: 'debtRate', label: 'Debt Growth', min: 0, max: 30, value: 3, step: 0.1 }
+    ];
+
+    sliders.forEach(cfg => {
+      const wrap = document.createElement('div');
+      wrap.className = 'flex flex-col gap-2';
+
+      const label = document.createElement('label');
+      label.className = 'text-sm';
+      label.setAttribute('for', cfg.id);
+      label.textContent = cfg.label;
+
+      const sliderRow = document.createElement('div');
+      sliderRow.className = 'flex items-center gap-3';
+
+      const input = document.createElement('input');
+      input.type = 'range';
+      input.id = cfg.id;
+      input.min = cfg.min;
+      input.max = cfg.max;
+      input.step = cfg.step;
+      input.value = cfg.value;
+      input.className = 'flex-1';
+
+      const valueDisplay = document.createElement('span');
+      valueDisplay.id = cfg.id + 'Value';
+      valueDisplay.textContent = `${cfg.value}%`;
+      valueDisplay.className = 'text-sm w-10';
+
+      input.addEventListener('input', () => {
+        valueDisplay.textContent = `${input.value}%`;
+         updateChart();
+      });
+
+      sliderRow.append(input, valueDisplay);
+      wrap.append(label, sliderRow);
+      controls.appendChild(wrap);
+    });
+
   
     const canvas = document.createElement('canvas');
     canvas.id = 'projectionChart';
