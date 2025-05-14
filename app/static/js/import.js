@@ -1,116 +1,212 @@
+/* ---------------------------------------------------------------------------
+   CostScope – CSV import logic with robust CSV-splitting & debug logging
+   Exports: setupImportArea(dropzoneId)
+---------------------------------------------------------------------------- */
+
 export function setupImportArea(dropzoneId) {
-    const dropzone = document.getElementById(dropzoneId);
-    const fileInput = document.getElementById('fileInput');
-    const transactionsSection = document.getElementById('transactionsSection');
-    const importSection = document.getElementById('importSection');
-    const tableBody = document.getElementById('transactionTableBody');
-  
-    if (!dropzone || !fileInput) return;
-  
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('border-blue-400', 'bg-[#222]');
-    });
-  
-    dropzone.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('border-blue-400', 'bg-[#222]');
-    });
-  
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('border-blue-400', 'bg-[#222]');
-      if (e.dataTransfer.files.length > 0) {
-        handleFile(e.dataTransfer.files[0]);
-      }
-    });
-  
-    dropzone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files.length > 0) {
-        handleFile(fileInput.files[0]);
-      }
-    });
-  
-    function handleFile(file) {
-      if (!file.name.endsWith('.csv')) {
-        alert('Please upload a CSV file.');
-        return;
-      }
-  
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result;
-        const rows = content.split('\n').filter(row => row.trim() !== '');
-        const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
-  
-        tableBody.innerHTML = '';
-  
-        for (let i = 1; i < rows.length; i++) {
-          const values = rows[i].split(',');
-          if (values.length < 3) continue;
-  
-          const [name, type, amount, tagsRaw] = values.map(v => v.trim());
-  
-          const row = document.createElement('tr');
-          row.className = 'border-b border-[#2a2a2a]';
-  
-          ['name', 'type', 'amount'].forEach((field, index) => {
-            const td = document.createElement('td');
-            td.className = 'py-2 pr-4 min-h-[3rem]';
-            td.textContent = values[index] || '—';
-            makeEditable(td);
-            row.appendChild(td);
-          });
-  
-          const tagsTd = document.createElement('td');
-          tagsTd.className = 'py-2 min-h-[3rem]';
-  
-          let parsedTags = {};
-          if (tagsRaw) {
-            let cleanTags = tagsRaw;
-            try {
-              // Excel-style CSV may wrap JSON in double double-quotes
-              if ((cleanTags.startsWith('"') && cleanTags.endsWith('"')) || 
-                  (cleanTags.startsWith("'") && cleanTags.endsWith("'"))) {
-                cleanTags = cleanTags.slice(1, -1); // strip outer quotes
-              }
-              cleanTags = cleanTags.replace(/""/g, '"'); // fix inner quotes
-              parsedTags = JSON.parse(cleanTags);
-            } catch (err) {
-              console.warn('Failed to parse tags JSON:', cleanTags);
-              parsedTags = { importance: tagsRaw.split(';').map(t => t.trim()) };
-            }
-            
-          }
-          tagsTd.dataset.tags = JSON.stringify(parsedTags);
-          
-  
-          // Immediately render pills (match style)
-          if (parsedTags.frequency) {
-            const f = document.createElement('span');
-            f.textContent = parsedTags.frequency;
-            f.className = 'tag-pill ' + parsedTags.frequency;
-            tagsTd.appendChild(f);
-          }
-          (parsedTags.importance || []).forEach(tag => {
-            const p = document.createElement('span');
-            p.textContent = tag;
-            p.className = 'tag-pill ' + tag;
-            tagsTd.appendChild(p);
-          });
-  
-          makeTagEditable(tagsTd);
-          row.appendChild(tagsTd);
-  
-          tableBody.appendChild(row);
+  // 1) Grab DOM elements
+  const dropzone            = document.getElementById(dropzoneId);
+  const fileInput           = document.getElementById('fileInput');
+  const transactionsSection = document.getElementById('transactionsSection');
+  const importSection       = document.getElementById('importSection');
+  const tableBody           = document.getElementById('transactionTableBody');
+
+  // 2) Safety guard
+  if (!dropzone || !fileInput) return;
+
+  /* ─────────────────── Drag-and-drop styling ───────────────────────────── */
+  const highlight   = () => dropzone.classList.add('border-blue-400', 'bg-[#222]');
+  const unhighlight = () => dropzone.classList.remove('border-blue-400', 'bg-[#222]');
+
+  dropzone.addEventListener('dragover',  e => { e.preventDefault(); highlight(); });
+  dropzone.addEventListener('dragleave', e => { e.preventDefault(); unhighlight(); });
+  dropzone.addEventListener('drop',      e => {
+    e.preventDefault();
+    unhighlight();
+    if (e.dataTransfer.files.length) {
+      console.log('[Import] File dropped:', e.dataTransfer.files[0].name);
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  /* ────────────── Fallback: click to open picker ───────────────────────── */
+  dropzone.addEventListener('click',   () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) {
+      console.log('[Import] File selected:', fileInput.files[0].name);
+      handleFile(fileInput.files[0]);
+    }
+  });
+
+  /* ─────────────────── File reading & preview ─────────────────────────── */
+  function handleFile(file) {
+    if (!file.name.endsWith('.csv')) {
+      alert('Please upload a .csv file');
+      console.warn('[Import] Rejected non-CSV file:', file.name);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      const raw = e.target.result;
+      console.log('[Import] Raw file length:', raw.length);
+
+      // split into lines (handles both LF and CRLF)
+      const rows = raw.split(/\r\n|\n/).filter(r => r.trim());
+      console.log('[Import] Total rows (incl. header):', rows.length);
+      if (rows.length < 2) return;
+
+      tableBody.innerHTML = ''; // clear old preview
+
+      // iterate data rows (skip header at index 0)
+      for (let i = 1; i < rows.length; i++) {
+        const rowText = rows[i];
+        console.group(`[Import] Row ${i}`);
+        console.log(' rowText:', rowText);
+
+        // robustly split by commas outside quotes
+        const cols = splitCsvLine(rowText);
+        console.log(' split cols:', cols);
+
+        if (cols.length < 3) {
+          console.warn('  skipping malformed row');
+          console.groupEnd();
+          continue;
         }
-  
-        importSection.classList.add('hidden');
-        transactionsSection.classList.remove('hidden');
-      };
-  
-      reader.readAsText(file);
+
+        // destructure first 4 columns (tagsRaw may include commas)
+        const [name, type, amount, tagsRaw = ''] = cols.map(s => s.trim());
+        console.log('  name:', name, '| type:', type, '| amount:', amount);
+        console.log('  raw tags:', tagsRaw);
+
+        // build <tr>
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-[#2a2a2a]';
+
+        // name | type | amount cells
+        ['name', 'type', 'amount'].forEach((_, idx) => {
+          const td = document.createElement('td');
+          td.className = 'py-2 pr-4 min-h-[3rem]';
+          td.textContent = cols[idx] || '—';
+          makeEditable(td);
+          tr.appendChild(td);
+        });
+
+        // tags cell
+        const tagsTd = document.createElement('td');
+        tagsTd.className = 'py-2 min-h-[3rem]';
+
+        const tagsObj = parseTagsCell(tagsRaw);
+        console.log('  parsed tagsObj:', tagsObj);
+
+        tagsTd.dataset.tags = JSON.stringify(tagsObj);
+        renderTagPills(tagsTd, tagsObj);
+        makeTagEditable(tagsTd);
+        tr.appendChild(tagsTd);
+
+        tableBody.appendChild(tr);
+        console.groupEnd();
+      }
+
+      // show preview
+      importSection.classList.add('hidden');
+      transactionsSection.classList.remove('hidden');
+      console.log('[Import] Preview table displayed');
+    };
+
+    reader.readAsText(file);
+  }
+}
+
+/* ─────────────────── Helper: split CSV line ────────────────────────────── */
+/**
+ * Splits a CSV line on commas that are not inside double quotes.
+ * Retains quoted substrings (with quotes).
+ */
+function splitCsvLine(line) {
+  const result = [];
+  let curr = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+
+    if (ch === '"' && line[i - 1] !== '\\') {
+      inQuotes = !inQuotes;  // toggle state
+      curr += ch;            // keep the quote for later unwrapping
+    } else if (ch === ',' && !inQuotes) {
+      result.push(curr);
+      curr = '';
+    } else {
+      curr += ch;
     }
   }
-  
+  result.push(curr);
+  return result;
+}
+
+/* ─────────────────── Helper: robust tags parsing ───────────────────────── */
+/**
+ * Parses a CSV tags cell (which may contain JSON with commas)
+ * Returns { frequency?: string, importance?: string[] }
+ */
+function parseTagsCell(raw) {
+  console.log('[parseTagsCell] input:', raw);
+  if (!raw) return {};
+
+  let txt = raw.trim().replace(/\r?\n/g, '');
+  console.log('  after trim:', txt);
+
+  // unwrap outer quotes repeatedly
+  while (
+    (txt.startsWith('"') && txt.endsWith('"')) ||
+    (txt.startsWith("'") && txt.endsWith("'"))
+  ) {
+    txt = txt.slice(1, -1);
+    console.log('  unwrapped quotes →', txt);
+  }
+
+  // unescape common CSV artifacts
+  txt = txt
+    .replace(/""/g, '"')
+    .replace(/\\"/g, '"');
+  console.log('  after unescape:', txt);
+
+  // try JSON.parse
+  try {
+    const obj = JSON.parse(txt);
+    console.log('  JSON.parse succeeded:', obj);
+    if (typeof obj === 'object' && obj !== null) {
+      return obj;
+    }
+  } catch (err) {
+    console.warn('  JSON.parse failed:', err);
+  }
+
+  // fallback: semicolon/comma/pipe-separated importance list
+  const fallback = {
+    importance: txt.split(/[;,|]/).map(t => t.trim()).filter(Boolean)
+  };
+  console.log('  fallback:', fallback);
+  return fallback;
+}
+
+/* ─────────────────── Helper: render coloured pills ─────────────────────── */
+/**
+ * Given a <td> and tags object, clears raw text and appends <span> pills.
+ */
+function renderTagPills(td, tags) {
+  td.textContent = '';  // clear anything
+  if (tags.frequency) {
+    const f = document.createElement('span');
+    f.textContent = tags.frequency;
+    f.className   = 'tag-pill ' + tags.frequency;
+    td.appendChild(f);
+  }
+  (tags.importance || []).forEach(tag => {
+    const s = document.createElement('span');
+    s.textContent = tag;
+    s.className   = 'tag-pill ' + tag;
+    td.appendChild(s);
+  });
+}
