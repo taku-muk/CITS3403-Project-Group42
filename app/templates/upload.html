@@ -19,6 +19,10 @@
     }
     .tag-option.unselected { @apply bg-gray-700 text-gray-300; }
     .tag-option.selected   { @apply bg-purple-600 text-white; }
+    .mode-btn.active {
+  background-color: #2A4A6D; /* dark blue */
+  color: #48AAFF;           /* light blue */
+}
   
     .tag-popup {
       @apply absolute bg-[#1e1e1e] border border-[#333] rounded-lg
@@ -65,6 +69,14 @@
     .tag-pill.Once\-off {
       @apply bg-orange-700 text-orange-300 border-orange-300;
     }
+    .mode-btn {
+  @apply px-4 py-2 rounded-full text-sm flex items-center gap-2 border border-gray-600 text-gray-200 hover:bg-[#2a2a2a] transition-colors;
+}
+
+/* When active, give it filled look */
+.mode-btn.active {
+  @apply bg-blue-500/20 text-blue-300 border-blue-400;
+}
     select option {
     background-color: #1e1e1e;
      color: white;
@@ -150,18 +162,14 @@ select:-webkit-autofill:focus {
 
 <!-- Action Buttons -->
 <div class="bg-[#1e1e1e] rounded-full border border-[#333] px-6 py-4 flex items-center gap-4">
-  <button
-    id="manualBtn"
-    class="bg-[#2a2a2a] px-4 py-2 rounded-full text-sm flex items-center gap-2"
-  >
-    <span>＋</span> Manually input
+  <button id="manualBtn" class="mode-btn">
+    <i data-lucide="plus-circle" class="w-4 h-4"></i> Manually input
   </button>
-
-  <button
-    class="bg-[#2a2a2a] px-4 py-2 rounded-full text-sm flex items-center gap-2"
-  >
-    <span>☁️</span> Import
+  
+  <button id="importBtn" class="mode-btn">
+    <i data-lucide="cloud" class="w-4 h-4"></i> Import
   </button>
+  
 
   <!-- arrow button at the end -->
   <button
@@ -247,14 +255,19 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
 manualBtn.addEventListener('click', () => {
   transactionsSection.classList.remove('hidden');
   importSection.classList.add('hidden');
+
+  manualBtn.classList.add('active');
+  importBtn.classList.remove('active');
 });
 
-
-// show the import and hide the manual 
 importBtn.addEventListener('click', () => {
   transactionsSection.classList.add('hidden');
   importSection.classList.remove('hidden');
+
+  importBtn.classList.add('active');
+  manualBtn.classList.remove('active');
 });
+
 
 
   // Make a cell editable by turning it into an input
