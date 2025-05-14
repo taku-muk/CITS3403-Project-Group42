@@ -87,51 +87,71 @@ def upload():
 
 
 # -------------------------- Visualise --------------------------
-
 @main.route('/visualise')
 @login_required
 def visualise():
-    user_expenses = Expense.query.filter_by(user_id=current_user.id).all()
-    total_income = sum(e.amount for e in user_expenses if e.type == 'income')
+    # 1. Fetch and classify raw numbers
+    user_expenses     = Expense.query.filter_by(user_id=current_user.id).all()
+    total_income      = sum(e.amount for e in user_expenses if e.type == 'income')
     total_expenditure = sum(e.amount for e in user_expenses if e.type == 'expense')
-    net_income = total_income - total_expenditure
-    total_savings = sum(e.amount for e in user_expenses if e.type in ['savings', 'investment'])
-    available_funds = total_savings + net_income
-
-    run_rate_months = round(available_funds / total_expenditure, 2) if available_funds > 0 and total_expenditure > 0 else 0.0
-
-    # Assets + liabilities
+    net_income        = total_income - total_expenditure
+    total_savings     = sum(e.amount for e in user_expenses if e.type in ['savings', 'investment'])
+    available_funds   = total_savings + net_income
+    run_rate_months   = (
+        round(available_funds / total_expenditure, 2)
+        if total_expenditure > 0 else 0.0
+    )
+    
+    # 2. Build assets + liabilities list
     assets_data = []
     for exp in user_expenses:
         if exp.type in ['savings', 'investment', 'debt']:
             assets_data.append({
                 'name': exp.name,
-                'type': exp.type,  # 👉 pass type separately!
+                'type': exp.type,
                 'amount': exp.amount,
                 'progress': 50  # placeholder
             })
 
-    tag_totals = defaultdict(float)
+    # 3. Initialize tag accumulators
+    importance_totals = defaultdict(float)  # Need vs Want
+    frequency_totals  = defaultdict(float)  # Recurring vs Once-off
+
+    # 4. Fill them
     for exp in user_expenses:
         if exp.type == 'expense':
             try:
                 tags = json.loads(exp.tags) if exp.tags else {}
-                importance_tags = tags.get('importance', [])
-                if isinstance(importance_tags, str):
-                    importance_tags = [importance_tags]
-                for tag in importance_tags:
-                    tag_totals[tag] += exp.amount
+
+                # Importance
+                imp = tags.get('importance', [])
+                if isinstance(imp, str):
+                    imp = [imp]
+                for tag in imp:
+                    importance_totals[tag] += exp.amount
+
+                # Frequency
+                freq = tags.get('frequency')
+                if isinstance(freq, str):
+                    frequency_totals[freq] += exp.amount
+
             except Exception:
-                tag_totals['Uncategorized'] += exp.amount
+                importance_totals['Uncategorized'] += exp.amount
 
-    leftover = max(0, total_income - sum(tag_totals.values()))
+    # 5. Compute leftovers per category
+    importance_leftover = max(0, total_income - sum(importance_totals.values()))
+    frequency_leftover  = max(0, total_income - sum(frequency_totals.values()))
 
+    # 6. Package chart_data for the frontend toggle
     chart_data = {
         'totalIncome': total_income,
-        'tagTotals': dict(tag_totals),
-        'leftover': leftover
+        'importanceTotals': dict(importance_totals),
+        'frequencyTotals': dict(frequency_totals),
+        'importanceLeftover': importance_leftover,
+        'frequencyLeftover': frequency_leftover
     }
 
+    # 7. Finally render
     return render_template(
         'visualise.html',
         dashboard_stats={
@@ -143,7 +163,6 @@ def visualise():
         assets_data=assets_data,
         chart_data=chart_data
     )
-
 
 # -------------------------- Cashflow Ring --------------------------
 
