@@ -60,9 +60,7 @@
     .tag-pill.Want {
       @apply bg-yellow-700 text-yellow-300 border-yellow-300;
     }
-    .tag-pill.Essential {
-      @apply bg-purple-700 text-purple-300 border-purple-300;
-    }
+ 
     .tag-pill.Recurring {
       @apply bg-indigo-700 text-indigo-300 border-indigo-300;
     }
@@ -242,7 +240,7 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
 </main>
 
 <script>
-  const TAGS = ['Need', 'Want', 'Essential'];
+  const TAGS = ['Need', 'Want'];
   const addTransactionBtn = document.getElementById('addTransactionBtn');
   const manualBtn           = document.getElementById('manualBtn');
   const tableBody = document.getElementById('transactionTableBody');
@@ -327,7 +325,7 @@ const TAG_CATEGORIES = [
     key: 'importance',
     label: 'Importance',
     single: false,
-    options: ['Need', 'Want', 'Essential']
+    options: ['Need', 'Want']
   }
 ];
 
