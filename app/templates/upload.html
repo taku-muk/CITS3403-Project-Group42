@@ -92,6 +92,62 @@ select:-webkit-autofill:focus {
 }
 
 </style>
+<style>
+  /* Confirmation Tooltip Styles */
+  .confirm-tooltip {
+    position: absolute;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    color: #e5e7eb;
+    font-size: 0.875rem;
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  .confirm-tooltip .confirm-text {
+    margin: 0 0 0.5rem 0;
+    font-weight: 500;
+  }
+  
+  .confirm-tooltip .confirm-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .confirm-tooltip button {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .confirm-tooltip .confirm-yes {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+  }
+  .confirm-tooltip .confirm-yes:hover {
+    background-color: #b91c1c;
+    border-color: #b91c1c;
+  }
+  
+  .confirm-tooltip .confirm-no {
+    background-color: transparent;
+    border-color: #555;
+    color: #bbb;
+  }
+  .confirm-tooltip .confirm-no:hover {
+    background-color: #333;
+    border-color: #666;
+    color: #fff;
+  }
+  </style>
 <script src="https://unpkg.com/lucide@latest"></script>
   
 </head>
@@ -248,6 +304,7 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
   const importBtn = document.querySelector('#manualBtn').nextElementSibling; // finds the Import button
   const importSection = document.getElementById('importSection');
 
+  
 
 // Show the table when “Manually input” is clicked and hide the import 
 manualBtn.addEventListener('click', () => {
@@ -513,6 +570,7 @@ if (existing.frequency) {
 });
   // ✅ append the row at the end
   tableBody.appendChild(row);
+  
 });
 
 document.getElementById('visualizeBtn').addEventListener('click', async () => {
@@ -569,6 +627,12 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
     setupImportArea("dropzone");
   });
 </script>
+<script type="module">
+  import { setupRowDeleteConfirmation } from '/static/js/rowDeleteConfirm.js';
+  // target the tbody where rows live:
+  setupRowDeleteConfirmation('#transactionTableBody');
+</script>
+
 
 <script>
   lucide.createIcons();
