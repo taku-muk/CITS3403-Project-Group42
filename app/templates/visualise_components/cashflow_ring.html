@@ -96,7 +96,7 @@
       data: {
         labels: impLabels,
         datasets: [{
-          data: impData,
+          data: freqData,
           backgroundColor: ['#a855f733', '#60a5fa33', '#52525b33'],
           borderColor:     ['#a855f7',   '#60a5fa',   '#52525b'],
           borderWidth: 1
@@ -115,26 +115,32 @@
     // 6. Toggle logic
     const btnImp  = document.getElementById('importanceToggle');
     const btnFreq = document.getElementById('frequencyToggle');
+    const freqColours = ['#a855f733', '#60a5fa33', '#52525b33'];
+const impColours  = ['#f59e0b33', '#fcd34d33', '#52525b33'];
+const freqBorder  = ['#a855f7', '#60a5fa', '#52525b'];
+const impBorder   = ['#f59e0b', '#fcd34d', '#52525b'];
+
+
+    function applyDataset(labels, data, colors) {
+  chart.data.labels = [...labels];                        // clone to avoid mutation issues
+  chart.data.datasets[0].data = [...data];                // clone to avoid corruption
+  chart.data.datasets[0].backgroundColor = colors.slice(0, labels.length);
+  chart.data.datasets[0].borderColor = colors.slice(0, labels.length);
+  chart.update();
+}
   
     btnImp.addEventListener('click', () => {
-      btnImp.classList.add('active');
-      btnFreq.classList.remove('active');
-      chart.data.labels            = impLabels;
-      chart.data.datasets[0].data  = impData;
-      chart.data.datasets[0].backgroundColor = ['#f59e0b33', '#fcd34d33', '#52525b33']; // Orange, Yellow, Grey
-      chart.data.datasets[0].borderColor     = ['#f59e0b',   '#fcd34d',   '#52525b'];   // Orange, Yellow, Grey
-  chart.update();
-      chart.update();
-    });
-  
-    btnFreq.addEventListener('click', () => {
-      btnFreq.classList.add('active');
-      btnImp.classList.remove('active');
-      chart.data.labels            = freqLabels;
-      chart.data.datasets[0].data  = freqData;
-      chart.data.datasets[0].backgroundColor = ['#a855f733', '#60a5fa33', '#52525b33'];
-      chart.data.datasets[0].borderColor     = ['#a855f7',   '#60a5fa',   '#52525b'];
-      chart.update();
-    });
+    if (btnImp.classList.contains('active')) return; // avoid redundant re-render
+     btnImp.classList.add('active');
+     btnFreq.classList.remove('active');
+    applyDataset(impLabels, impData, impColours);
+});
+
+btnFreq.addEventListener('click', () => {
+  if (btnFreq.classList.contains('active')) return;
+  btnFreq.classList.add('active');
+  btnImp.classList.remove('active');
+  applyDataset(freqLabels, freqData, freqColours);
+});
   </script>
   
