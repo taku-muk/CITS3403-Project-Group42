@@ -78,7 +78,7 @@ export function renderProjectionView(assetsData, targetContainer,income) {
     // update only its own label on drag
     inp.addEventListener('input', () => {
       disp.textContent = `${inp.value}%`;
-      // updateChart(); // enable later when wiring logic
+      updateChart(); // enable later when wiring logic
     });
 
     row.append(inp, disp);
@@ -180,7 +180,14 @@ export function renderProjectionView(assetsData, targetContainer,income) {
 
   updateChart();
 
-  ['savingsRate', 'investmentRate', 'debtRate'].forEach(id => {
+  [
+    'savingsInterest',
+    'investmentReturn',
+    'debtGrowth',
+    'savingsRate',
+    'investmentRate',
+    'repaymentRate'
+  ].forEach(id => {
     const input = targetContainer.querySelector(`#${id}`);
     if (input) input.addEventListener('input', updateChart);
   });
