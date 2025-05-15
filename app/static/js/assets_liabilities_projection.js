@@ -122,7 +122,7 @@ export function renderProjectionView(assetsData, targetContainer,income) {
 
   function updateChart() {
     // 1) Base income (can be negative)
-    const baseIncome = parseFloat(income) || 0;
+    const baseIncome = (parseFloat(income) || 0) * 12;
   
     // 2) Growth sliders (must match your slider IDs)
     const siInput  = targetContainer.querySelector('#savingsInterest');

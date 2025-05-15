@@ -33,7 +33,18 @@ export function setupAttachmentTooltip(btnId, tooltipId) {
     // Download options
     const downloads = [
       { label: "Download empty template", icon: "📄", action: () => alert("Download empty template") },
-      { label: "Download prefilled template", icon: "📝", action: () => alert("Download prefilled template") },
+      {
+        label: "Download prefilled template",
+        icon: "📝",
+        action: () => {
+          const link = document.createElement("a");
+          link.href = "/static/templates/finance_template.csv";  // <- your actual file path
+          link.download = "CostScope_Prefilled_Template.xlsx";      // <- desired filename
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      },
     ];
   
     downloads.forEach(d => {

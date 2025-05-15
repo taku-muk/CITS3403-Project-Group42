@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CostScope - Interactive Finance Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style type="text/tailwindcss">
     /* Hover effect for editable cells */
     td:hover { @apply bg-[#2a2a2a] cursor-pointer; }
@@ -230,8 +231,10 @@ select:-webkit-autofill:focus {
       data-tooltip-target="attachmentTooltip"
       aria-label="Attachment"
     >
-      📎
+    <i data-lucide="paperclip" class="w-5 h-5 text-gray-400"></i>
     </button>
+
+
   
     <button
       id="visualizeBtn"

@@ -147,49 +147,50 @@ function splitCsvLine(line) {
 
 /* ─────────────────── Helper: robust tags parsing ───────────────────────── */
 /**
- * Parses a CSV tags cell (which may contain JSON with commas)
+ * Accepts either
+ *   ① JSON:  {"frequency":"Recurring","importance":["Need"]}
+ *   ② Plain list: need,recurring   want;once-off   need|once-off
  * Returns { frequency?: string, importance?: string[] }
  */
 function parseTagsCell(raw) {
-  console.log('[parseTagsCell] input:', raw);
   if (!raw) return {};
 
   let txt = raw.trim().replace(/\r?\n/g, '');
-  console.log('  after trim:', txt);
 
-  // unwrap outer quotes repeatedly
+  /* ── 1) unwrap outer quotes & unescape CSV artefacts ────────────────── */
   while (
     (txt.startsWith('"') && txt.endsWith('"')) ||
     (txt.startsWith("'") && txt.endsWith("'"))
   ) {
     txt = txt.slice(1, -1);
-    console.log('  unwrapped quotes →', txt);
   }
+  txt = txt.replace(/""/g, '"').replace(/\\"/g, '"');
 
-  // unescape common CSV artifacts
-  txt = txt
-    .replace(/""/g, '"')
-    .replace(/\\"/g, '"');
-  console.log('  after unescape:', txt);
-
-  // try JSON.parse
+  /* ── 2) first try JSON.parse ─────────────────────────────────────────── */
   try {
     const obj = JSON.parse(txt);
-    console.log('  JSON.parse succeeded:', obj);
-    if (typeof obj === 'object' && obj !== null) {
-      return obj;
-    }
-  } catch (err) {
-    console.warn('  JSON.parse failed:', err);
+    if (obj && typeof obj === 'object') return obj;
+  } catch (_) {
+    /* not JSON, fall through */
   }
 
-  // fallback: semicolon/comma/pipe-separated importance list
-  const fallback = {
-    importance: txt.split(/[;,|]/).map(t => t.trim()).filter(Boolean)
-  };
-  console.log('  fallback:', fallback);
-  return fallback;
+  /* ── 3) fallback: comma/semicolon/pipe-separated list ────────────────── */
+  const parts = txt.split(/[;,|]/).map(t => t.trim().toLowerCase()).filter(Boolean);
+
+  const mapped = { importance: [], frequency: undefined };
+  parts.forEach(p => {
+    if (p === 'recurring' || p === 'once-off' || p === 'onceoff' || p === 'once_off') {
+      mapped.frequency = p === 'recurring' ? 'Recurring' : 'Once-off';
+    } else if (p === 'need' || p === 'want') {
+      mapped.importance.push(p[0].toUpperCase() + p.slice(1)); // Need / Want
+    }
+  });
+
+  if (!mapped.importance.length) delete mapped.importance;
+  if (!mapped.frequency)        delete mapped.frequency;
+  return mapped;
 }
+
 
 /* ─────────────────── Helper: render coloured pills ─────────────────────── */
 /**
