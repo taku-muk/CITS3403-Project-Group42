@@ -68,37 +68,62 @@
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // 1. Grab data from Flask
+    /* ───────────── 1. Data from Flask ───────────── */
     const chartData   = JSON.parse('{{ chart_data|tojson|safe }}');
     const totalIncome = chartData.totalIncome;
-  
-    // 2. Prepare Importance data
-    const impLabels = Object.keys(chartData.importanceTotals);
-    const impData   = Object.values(chartData.importanceTotals);
-    impLabels.push('Leftover');
-    impData.push(chartData.importanceLeftover);
-  
-    // 3. Prepare Frequency data
-    const freqLabels = Object.keys(chartData.frequencyTotals);
-    const freqData   = Object.values(chartData.frequencyTotals);
-    freqLabels.push('Leftover');
-    freqData.push(chartData.frequencyLeftover);
-  
-    // 4. Set initial center text
+    
+    /* ───────────── 2. Helpers & constants ───────── */
+    const GREY_BG   = '#52525b33';
+    const GREY_LINE = '#52525b';
+    
+    /**
+     * Build a dataset whose first slice is always grey.
+     * Guarantees ≥ 2 slices so Chart.js keeps the doughnut-shape,
+     * and falls back to a single grey “No data” slice when everything is 0.
+     */
+    function buildDataset(labelMap, leftover) {
+      let labels = ['Leftover', ...Object.keys(labelMap)];
+      let data   = [leftover,   ...Object.values(labelMap)];
+    
+      if (labels.length < 2) {           // ensure at least two
+        labels.push('Other');
+        data.push(0);
+      }
+    
+      if (data.every(v => v === 0)) {    // nothing at all → single slice
+        labels = ['No data'];
+        data   = [1];
+      }
+      return { labels, data };
+    }
+    
+    /* ───────────── 3. Prepare both modes ────────── */
+    const imp  = buildDataset(chartData.importanceTotals,  chartData.importanceLeftover);
+    const freq = buildDataset(chartData.frequencyTotals,   chartData.frequencyLeftover);
+    
+    /* ───────────── 4. Centre text ───────────────── */
     document.getElementById('cashFlowCenterText').textContent =
       `$${totalIncome.toFixed(2)}`;
-  
-    // 5. Initialize Chart.js
+    
+    /* ───────────── 5. Colour palettes (grey first) */
+    const freqBG   = [GREY_BG,  '#a855f733', '#60a5fa33'];
+    const freqLine = [GREY_LINE,'#a855f7',   '#60a5fa'];
+    
+    const impBG    = [GREY_BG,  '#f59e0b33', '#fcd34d33'];
+    const impLine  = [GREY_LINE,'#f59e0b',   '#fcd34d'];
+    
+    /* ───────────── 6. Chart initialised in “freq” ─ */
     const ctx = document.getElementById('cashFlowChart').getContext('2d');
     const chart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: impLabels,
+        labels: freq.labels,
         datasets: [{
-          data: freqData,
-          backgroundColor: ['#a855f733', '#60a5fa33', '#52525b33'],
-          borderColor:     ['#a855f7',   '#60a5fa',   '#52525b'],
+          data: freq.data,
+          backgroundColor: freqBG.slice(0, freq.labels.length),
+          borderColor:     freqLine.slice(0, freq.labels.length),
           borderWidth: 1
         }]
       },
@@ -106,41 +131,36 @@
         cutout: '70%',
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false },
+          legend:  { display: false },
           tooltip: { enabled: true }
         }
       }
     });
-  
-    // 6. Toggle logic
+    
+    /* ───────────── 7. Toggle buttons ────────────── */
     const btnImp  = document.getElementById('importanceToggle');
     const btnFreq = document.getElementById('frequencyToggle');
-    const freqColours = ['#a855f733', '#60a5fa33', '#52525b33'];
-const impColours  = ['#f59e0b33', '#fcd34d33', '#52525b33'];
-const freqBorder  = ['#a855f7', '#60a5fa', '#52525b'];
-const impBorder   = ['#f59e0b', '#fcd34d', '#52525b'];
-
-
-    function applyDataset(labels, data, colors) {
-  chart.data.labels = [...labels];                        // clone to avoid mutation issues
-  chart.data.datasets[0].data = [...data];                // clone to avoid corruption
-  chart.data.datasets[0].backgroundColor = colors.slice(0, labels.length);
-  chart.data.datasets[0].borderColor = colors.slice(0, labels.length);
-  chart.update();
-}
-  
+    
+    function applyDataset(ds, bg, line) {
+      chart.data.labels                      = [...ds.labels];
+      chart.data.datasets[0].data            = [...ds.data];
+      chart.data.datasets[0].backgroundColor = bg.slice(0, ds.labels.length);
+      chart.data.datasets[0].borderColor     = line.slice(0, ds.labels.length);
+      chart.update();
+    }
+    
     btnImp.addEventListener('click', () => {
-    if (btnImp.classList.contains('active')) return; // avoid redundant re-render
-     btnImp.classList.add('active');
-     btnFreq.classList.remove('active');
-    applyDataset(impLabels, impData, impColours);
-});
-
-btnFreq.addEventListener('click', () => {
-  if (btnFreq.classList.contains('active')) return;
-  btnFreq.classList.add('active');
-  btnImp.classList.remove('active');
-  applyDataset(freqLabels, freqData, freqColours);
-});
-  </script>
-  
+      if (btnImp.classList.contains('active')) return;
+      btnImp.classList.add('active');
+      btnFreq.classList.remove('active');
+      applyDataset(imp, impBG, impLine);
+    });
+    
+    btnFreq.addEventListener('click', () => {
+      if (btnFreq.classList.contains('active')) return;
+      btnFreq.classList.add('active');
+      btnImp.classList.remove('active');
+      applyDataset(freq, freqBG, freqLine);
+    });
+    </script>
+    
