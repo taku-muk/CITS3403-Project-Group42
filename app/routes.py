@@ -239,7 +239,9 @@ def share_data():
 
     # For GET request, show the page
     sent_reports = SharedReport.query.filter_by(owner_id=current_user.id).order_by(SharedReport.timestamp.desc()).all()
+    received_reports = SharedReport.query.filter_by(recipient_username=current_user.username).all()
     return render_template('share.html', shared_reports=sent_reports)
+
 
 
 @main.route('/shared-report/<int:report_id>')
@@ -248,7 +250,7 @@ def view_shared_report(report_id):
     shared = SharedReport.query.get_or_404(report_id)
 
     # Guard: only the intended recipient may view
-    if shared.recipient_username != current_user.username:
+    if shared.recipient_username != current_user.username and shared.owner_id != current_user.id:
         flash("❌ You are not authorized to view this report.")
         return redirect(url_for('main.shared_with_me'))
 
@@ -353,5 +355,25 @@ def revoke_report(report_id):
 @main.route('/shared-with-me')
 @login_required
 def shared_with_me():
-    reports = SharedReport.query.filter_by(recipient_username=current_user.username).order_by(SharedReport.timestamp.desc()).all()
-    return render_template('shared_with_me.html', shared_reports=reports)
+    # Reports shared TO you
+    received_reports = (
+        SharedReport.query
+        .filter_by(recipient_username=current_user.username)
+        .order_by(SharedReport.timestamp.desc())
+        .all()
+    )
+
+    # Reports YOU shared
+    sent_reports = (
+        SharedReport.query
+        .filter_by(owner_id=current_user.id)
+        .order_by(SharedReport.timestamp.desc())
+        .all()
+    )
+
+    return render_template(
+        'shared_with_me.html',
+        shared_reports=received_reports,
+        sent_reports=sent_reports
+    
+    )
