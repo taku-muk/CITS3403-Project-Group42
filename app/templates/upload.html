@@ -223,15 +223,24 @@ select:-webkit-autofill:focus {
   <button id="importBtn" class="mode-btn">
     <i data-lucide="cloud" class="w-4 h-4"></i> Import
   </button>
+  <div class="ml-auto flex items-center gap-3">
+    <button
+      id="attachmentBtn"
+      class="w-9 h-9 flex items-center justify-center  text-gray-300 hover:bg-[#2a2a2a] transition"
+      data-tooltip-target="attachmentTooltip"
+      aria-label="Attachment"
+    >
+      📎
+    </button>
   
-
-  <!-- arrow button at the end -->
-  <button
-  id="visualizeBtn"
-  class="ml-auto bg-blue-500 hover:bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded text-xl font-bold transition"
->
-  →
-</button>
+    <button
+      id="visualizeBtn"
+      class="w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center rounded text-xl font-bold transition"
+      aria-label="Submit"
+    >
+      →
+    </button>
+  </div>
 
 
 </div>
@@ -292,6 +301,12 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
 
   
 
+<div
+  id="attachmentTooltip"
+  class="hidden absolute z-50 bg-[#1e1e1e] text-gray-200 border border-[#333] rounded-lg p-4 text-sm w-64 shadow-lg"
+>
+  <p class="text-gray-400 text-sm">Loading attachment options...</p>
+</div>
 
 </main>
 
@@ -637,6 +652,14 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
 <script>
   lucide.createIcons();
 </script>
+<script type="module">
+  import { setupAttachmentTooltip } from "/static/js/attachmentTooltip.js";
+
+  window.addEventListener("DOMContentLoaded", () => {
+    setupAttachmentTooltip("attachmentBtn", "attachmentTooltip");
+  });
+</script>
+
 
 
 </body>
