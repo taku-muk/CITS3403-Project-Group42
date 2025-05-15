@@ -65,7 +65,7 @@ export function renderProjectionView(assetsData, targetContainer,income) {
     inp.type      = 'range';
     inp.id        = cfg.id;
     inp.min       = 0;
-    inp.max       = 50;
+    inp.max       = 100;
     inp.step      = 1;
     inp.value     = cfg.value;
     inp.className = 'flex-1';
