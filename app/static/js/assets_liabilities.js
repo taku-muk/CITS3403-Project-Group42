@@ -69,11 +69,11 @@ export function renderAssetsAndLiabilities(assets, viewMode, totalIncome, netInc
   chartBtn.appendChild(chartIcon);
 
   listBtn.addEventListener('click', () => {
-    if (viewMode !== 'list') renderAssetsAndLiabilities(assets, 'list');
+    if (viewMode !== 'list')  renderAssetsAndLiabilities(assets, 'list', totalIncome, netIncome);
   });
 
   chartBtn.addEventListener('click', () => {
-    if (viewMode !== 'projection') renderAssetsAndLiabilities(assets, 'projection');
+    if (viewMode !== 'projection') renderAssetsAndLiabilities(assets, 'projection', totalIncome, netIncome);
   });
 
   toggleContainer.appendChild(listBtn);
