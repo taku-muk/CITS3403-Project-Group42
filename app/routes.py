@@ -247,77 +247,93 @@ def share_data():
 def view_shared_report(report_id):
     shared = SharedReport.query.get_or_404(report_id)
 
+    # Guard: only the intended recipient may view
     if shared.recipient_username != current_user.username:
         flash("❌ You are not authorized to view this report.")
         return redirect(url_for('main.shared_with_me'))
 
-    # 👇 Load the owner's expenses
+    # ── 1. Load the owner’s expenses ───────────────────────────
     owner_expenses = Expense.query.filter_by(user_id=shared.owner_id).all()
 
-    # ✅ replicate /visualise logic
-    total_income = sum(e.amount for e in owner_expenses if e.type == 'income')
+    # ── 2. Core numbers ────────────────────────────────────────
+    total_income      = sum(e.amount for e in owner_expenses if e.type == 'income')
     total_expenditure = sum(e.amount for e in owner_expenses if e.type == 'expense')
-    net_income = total_income - total_expenditure
-    total_savings = sum(e.amount for e in owner_expenses if e.type in ['savings', 'investment'])
-    available_funds = total_savings + net_income
-    run_rate_months = round(available_funds / total_expenditure, 2) if available_funds > 0 and total_expenditure > 0 else 0.0
+    net_income        = total_income - total_expenditure
+    total_savings     = sum(e.amount for e in owner_expenses if e.type in ['savings', 'investment'])
+    available_funds   = total_savings + net_income
+    run_rate_months   = round(available_funds / total_expenditure, 2) if total_expenditure else 0.0
 
-    # assets + liabilities
-    assets_data = []
-    for exp in owner_expenses:
-        if exp.type in ['savings', 'investment', 'debt']:
-            assets_data.append({
-                'name': exp.name,
-                'type': exp.type,
-                'amount': exp.amount,
-                'progress': 50  # placeholder
-            })
+    # ── 3. Assets & liabilities list ───────────────────────────
+    assets_data = [
+        {
+            'name': e.name,
+            'type': e.type,
+            'amount': e.amount,
+            'progress': 50        # placeholder
+        }
+        for e in owner_expenses if e.type in ['savings', 'investment', 'debt']
+    ]
 
-    tag_totals = defaultdict(float)
-    for exp in owner_expenses:
-        if exp.type == 'expense':
-            try:
-                tags = json.loads(exp.tags) if exp.tags else {}
-                importance_tags = tags.get('importance', [])
-                if isinstance(importance_tags, str):
-                    importance_tags = [importance_tags]
-                for tag in importance_tags:
-                    tag_totals[tag] += exp.amount
-            except Exception:
-                tag_totals['Uncategorized'] += exp.amount
+    # ── 4. Build tag breakdowns for the cash-flow ring ─────────
+    importance_totals = defaultdict(float)
+    frequency_totals  = defaultdict(float)
 
-    leftover = max(0, total_income - sum(tag_totals.values()))
+    for e in owner_expenses:
+        if e.type != 'expense':
+            continue
+        try:
+            tags = json.loads(e.tags) if e.tags else {}
+            # importance (Need vs Want)
+            imp = tags.get('importance', [])
+            if isinstance(imp, str):
+                imp = [imp]
+            for tag in imp:
+                importance_totals[tag] += e.amount
+            # frequency (Recurring vs Once-off)
+            freq = tags.get('frequency')
+            if isinstance(freq, str):
+                frequency_totals[freq] += e.amount
+        except Exception:
+            importance_totals['Uncategorized'] += e.amount
 
+    importance_leftover = max(0, total_income - sum(importance_totals.values()))
+    frequency_leftover  = max(0, total_income - sum(frequency_totals.values()))
+
+    # ── 5. chart_data in the same shape used by /visualise ─────
     chart_data = {
-        'totalIncome': total_income,
-        'tagTotals': dict(tag_totals),
-        'leftover': leftover
+        'totalIncome'        : total_income,
+        'importanceTotals'   : dict(importance_totals),
+        'importanceLeftover' : importance_leftover,
+        'frequencyTotals'    : dict(frequency_totals),
+        'frequencyLeftover'  : frequency_leftover
     }
+
+    # ── 6. Stats for the top cards ─────────────────────────────
     dashboard_stats = {
-    'totalIncome': total_income,
-    'totalExpenditure': total_expenditure,
-    'netIncome': net_income,
-    'runRate': run_rate_months,
-    'availableFunds': available_funds,
-    'assetsData': assets_data,
-    'tagTotals': dict(tag_totals),
-    'leftover': leftover
-}
+        'totalIncome'      : total_income,
+        'totalExpenditure' : total_expenditure,
+        'netIncome'        : net_income,
+        'runRate'          : run_rate_months,
+        'availableFunds'   : available_funds,
+        'assetsData'       : assets_data
+    }
 
-
+    # ── 7. Render visualise.html with all the pieces ───────────
     return render_template(
-        'visualise.html',  # ✅ same template
-        report=shared,     # optional info to say "shared report"
-        user_expenses=owner_expenses,
-        assets_data=assets_data,
-        chart_data=chart_data,
-        total_income=total_income,
-        total_expenditure=total_expenditure,
-        net_income=net_income,
-        run_rate_months=run_rate_months,
-        available_funds=available_funds,
-        dashboard_stats=dashboard_stats
+        'visualise.html',
+        report              = shared,        # so the template knows it’s shared
+        user_expenses       = owner_expenses,
+        assets_data         = assets_data,
+        chart_data          = chart_data,
+        dashboard_stats     = dashboard_stats,
+        total_income        = total_income,
+        total_expenditure   = total_expenditure,
+        net_income          = net_income,
+        run_rate_months     = run_rate_months,
+        available_funds     = available_funds
     )
+
+
 
 
 @main.route('/revoke/<int:report_id>', methods=['POST'])
