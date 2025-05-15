@@ -28,6 +28,7 @@ export function renderAssetsAndLiabilities(assets, viewMode, totalIncome, netInc
   aggregated['Savings'].amount += netIncome;
   const investment = aggregated['Investment'].amount;
   const debt = aggregated['Debt'].amount;
+
   const netWorth = (savings + investment) - debt;
 
   const outer = document.createElement('div');
@@ -237,7 +238,7 @@ listWrapper.appendChild(ul)
     
 
   } else if (viewMode === 'projection') {
-    renderProjectionView(assets, listWrapper); // 🔥 inject chart into wrapper
+    renderProjectionView(assets, listWrapper, netIncome);
   }
 
 
