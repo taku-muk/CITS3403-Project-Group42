@@ -132,7 +132,7 @@
     let currentView = 'list';  // global state
 
     renderTopCards(dashboardStats);
-    renderAssetsAndLiabilities(assetsData,currentView);
+    renderAssetsAndLiabilities(assetsData, currentView, dashboardStats.totalIncome,dashboardStats.netIncome);
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>

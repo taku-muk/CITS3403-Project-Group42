@@ -1,6 +1,6 @@
 import { renderProjectionView } from "/static/js/assets_liabilities_projection.js";
 
-export function renderAssetsAndLiabilities(assets,viewMode) {
+export function renderAssetsAndLiabilities(assets, viewMode, totalIncome, netIncome )  {
   const container = document.getElementById('assets-liabilities');
   container.innerHTML = '';
   console.log('assets:', assets);
@@ -24,7 +24,8 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
     }
   });
 
-  const savings = aggregated['Savings'].amount;
+  const savings = aggregated['Savings'].amount + netIncome;  // ⬅️ ADDED netIncome
+  aggregated['Savings'].amount += netIncome;
   const investment = aggregated['Investment'].amount;
   const debt = aggregated['Debt'].amount;
   const netWorth = (savings + investment) - debt;
@@ -92,17 +93,39 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
   Object.entries(aggregated).forEach(([name, data]) => {
     const card = document.createElement('div');
     card.className = 'bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4';
-
+  
+    // Only show arrow for "Savings"
+    let arrowHTML = '';
+    if (name === 'Savings') {
+      if (netIncome > 0) {
+        arrowHTML = '<i data-lucide="arrow-up-right" class="w-4 h-4 text-green-400 ml-1"></i>';
+      } else if (netIncome < 0) {
+        arrowHTML = '<i data-lucide="arrow-down-right" class="w-4 h-4 text-red-400 ml-1"></i>';
+      }
+    }
+  
     card.innerHTML = `
-      <p class="text-[#838383] text-sm">${name}</p>
-      <h3 class="text-xl font-bold">$${data.amount}</h3>
-      <div class="w-full h-2 bg-[#151515] rounded-full">
-        <div class="bg-white h-2 rounded-full" style="width: ${data.progress}%"></div>
-      </div>
-    `;
-
+  <p class="text-[#838383] text-sm">${name}</p>
+  <div class="flex items-center">
+    <h3 class="text-xl font-bold">$${(data.amount || 0).toLocaleString()}</h3>
+    ${
+      name === 'Savings'
+        ? netIncome > 0
+          ? '<i data-lucide="arrow-up" class="w-5 h-5 text-green-400 ml-3"></i>'
+          : netIncome < 0
+          ? '<i data-lucide="arrow-down" class="w-5 h-5 text-red-400 ml-3"></i>'
+          : ''
+        : ''
+    }
+  </div>
+  <div class="w-full h-2 bg-[#151515] rounded-full mt-2">
+    <div class="bg-white h-2 rounded-full" style="width: ${data.progress}%"></div>
+  </div>
+`;
+  
     grid.appendChild(card);
   });
+  
   outer.appendChild(grid);
 
 
@@ -127,8 +150,18 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
 const iconMap = {
   savings: lucide.Wallet,
   investment: lucide.TrendingUp,
-  debt: lucide.Landmark
+  debt: lucide.Landmark,
+  income: lucide.DollarSign // ✅ Added for dummy asset
 };
+assets = [
+  {
+    name: "This Month's Income",
+    type: 'income',        // <- Use a unique type
+    amount: totalIncome,
+    progress: 100          // optional, won’t be used unless you display it
+  },
+  ...assets
+];
 
 assets.forEach(asset => {
   const li = document.createElement('li');
@@ -183,4 +216,5 @@ listWrapper.appendChild(ul)
 
 
   container.appendChild(outer);
+  lucide.createIcons();
 }
