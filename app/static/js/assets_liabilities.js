@@ -150,18 +150,41 @@ export function renderAssetsAndLiabilities(assets, viewMode, totalIncome, netInc
 const iconMap = {
   savings: lucide.Wallet,
   investment: lucide.TrendingUp,
-  debt: lucide.Landmark,
-  income: lucide.DollarSign // ✅ Added for dummy asset
+  debt: lucide.Landmark
 };
-assets = [
-  {
-    name: "This Month's Income",
-    type: 'income',        // <- Use a unique type
-    amount: totalIncome,
-    progress: 100          // optional, won’t be used unless you display it
-  },
-  ...assets
-];
+  // ✅ Insert "This Month's Income" item at top
+  const incomeLi = document.createElement('li');
+  incomeLi.className = 'flex items-center justify-between border-b border-[#333] pb-2 mb-2';
+
+  const left = document.createElement('div');
+  left.className = 'flex items-center gap-2';
+
+  const incomeIcon = lucide.createElement(lucide.DollarSign);
+  incomeIcon.setAttribute('stroke', '#22c55e'); // Tailwind green-500
+  incomeIcon.setAttribute('width', '22');
+  incomeIcon.setAttribute('height', '22');
+
+  const iconWrapper = document.createElement('div');
+  iconWrapper.className = 'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
+  iconWrapper.appendChild(incomeIcon);
+
+  const label = document.createElement('div');
+  label.className = 'text-sm text-white font-semibold';
+  label.textContent = "This Month's Income";
+
+  left.appendChild(iconWrapper);
+  left.appendChild(label);
+
+  const amount = document.createElement('div');
+  amount.className = 'text-sm text-green-400 font-bold';
+  amount.textContent = `+ $${Number(totalIncome || 0).toLocaleString()}`;
+
+  incomeLi.appendChild(left);
+  incomeLi.appendChild(amount);
+
+  ul.appendChild(incomeLi);
+
+
 
 assets.forEach(asset => {
   const li = document.createElement('li');
