@@ -160,7 +160,7 @@ const iconMap = {
   left.className = 'flex items-center gap-2';
 
   const incomeIcon = lucide.createElement(lucide.DollarSign);
-  incomeIcon.setAttribute('stroke', '#22c55e'); // Tailwind green-500
+  incomeIcon.setAttribute('stroke', '#FFFFFF'); // Tailwind green-500
   incomeIcon.setAttribute('width', '22');
   incomeIcon.setAttribute('height', '22');
 
@@ -176,8 +176,11 @@ const iconMap = {
   left.appendChild(label);
 
   const amount = document.createElement('div');
-  amount.className = 'text-sm text-green-400 font-bold';
-  amount.textContent = `+ $${Number(totalIncome || 0).toLocaleString()}`;
+  const incomeValue = Number(netIncome || 0);
+const isPositive = incomeValue >= 0;
+
+amount.className = `text-sm font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`;
+amount.textContent = `${isPositive ? '+' : '−'} $${Math.abs(incomeValue).toLocaleString()}`;
 
   incomeLi.appendChild(left);
   incomeLi.appendChild(amount);
