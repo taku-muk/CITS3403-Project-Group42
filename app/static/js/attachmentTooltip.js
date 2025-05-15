@@ -15,12 +15,15 @@ export function setupAttachmentTooltip(btnId, tooltipId) {
     tooltip.innerHTML = "";
   
     personas.forEach(persona => {
-      const personaBtn = document.createElement("button");
-      personaBtn.className = "block w-full text-left px-2 py-1 text-sm text-gray-300 hover:text-white hover:bg-[#2a2a2a] rounded transition";
-      personaBtn.textContent = `${persona.icon} ${persona.label}`;
-      personaBtn.onclick = () => alert(`Selected persona: ${persona.label}`);
-      tooltip.appendChild(personaBtn);
-    });
+        const personaBtn = document.createElement("button");
+        personaBtn.className = "block w-full text-left px-2 py-1 text-sm text-gray-300 hover:text-white hover:bg-[#2a2a2a] rounded transition";
+        personaBtn.textContent = `${persona.icon} ${persona.label}`;
+        personaBtn.onclick = () => {
+          prefillTransactions(persona.label);
+          tooltip.classList.add("hidden");
+        };
+        tooltip.appendChild(personaBtn);
+      });
   
     // Separator
     const hr = document.createElement("div");

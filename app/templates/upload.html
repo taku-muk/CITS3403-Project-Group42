@@ -654,6 +654,9 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
 </script>
 <script type="module">
   import { setupAttachmentTooltip } from "/static/js/attachmentTooltip.js";
+  import { prefillTransactions } from "/static/js/prefillTemplates.js";
+
+  window.prefillTransactions = prefillTransactions; // expose globally if needed by attachmentTooltip.js
 
   window.addEventListener("DOMContentLoaded", () => {
     setupAttachmentTooltip("attachmentBtn", "attachmentTooltip");
