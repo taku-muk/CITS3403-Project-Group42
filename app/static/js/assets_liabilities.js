@@ -123,52 +123,58 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
   
  
   
-    const icons = {
-      savings: lucide.createElement(lucide.Wallet),
-      investment: lucide.createElement(lucide.TrendingUp),
-      debt: lucide.createElement(lucide.Landmark)
-    };
-  
-    assets.forEach(asset => {
-      const li = document.createElement('li');
-      li.className = 'flex items-center justify-between ';
-  
-      const left = document.createElement('div');
-      left.className = 'flex items-center gap-2';
-  
-      const iconSvg = icons[asset.type.toLowerCase()] || lucide.createElement(lucide.HelpCircle);
-      iconSvg.setAttribute('stroke', 'white');
-      iconSvg.setAttribute('width', '20');
-      iconSvg.setAttribute('height', '20');
-  
-      const iconWrapper = document.createElement('div');
-      iconWrapper.className = 'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
-      iconWrapper.appendChild(iconSvg);
-  
-      left.appendChild(iconWrapper);
-  
-      const nameText = document.createElement('div');
-      nameText.className = 'text-sm text-white';
-      nameText.textContent = asset.name;
-      left.appendChild(nameText);
-  
-      const amount = document.createElement('div');
-      amount.className = `text-sm ${
-        asset.type.toLowerCase() === 'investment' ? 'text-green-300'
-        : asset.type.toLowerCase() === 'debt' ? 'text-red-300'
-        : 'text-green-300'
-      }`;
-  
-      const amountPrefix = asset.type.toLowerCase() === 'debt' ? '-' : '+';
-      amount.textContent = `${amountPrefix} $${asset.amount}`;
-  
-      li.appendChild(left);
-      li.appendChild(amount);
-  
-      ul.appendChild(li);
-    });
-  
-    listWrapper.appendChild(ul);
+// ✅ keep only *constructors* in the map
+const iconMap = {
+  savings: lucide.Wallet,
+  investment: lucide.TrendingUp,
+  debt: lucide.Landmark
+};
+
+assets.forEach(asset => {
+  const li = document.createElement('li');
+  li.className = 'flex items-center justify-between';
+
+  const left = document.createElement('div');
+  left.className = 'flex items-center gap-2';
+
+  // ✅ build a fresh SVG for every row
+  const Icon    = iconMap[asset.type?.toLowerCase()] || lucide.HelpCircle;
+  const iconSvg = lucide.createElement(Icon);
+  iconSvg.setAttribute('stroke', 'white');
+  iconSvg.setAttribute('width', '20');
+  iconSvg.setAttribute('height', '20');
+
+  const iconWrapper = document.createElement('div');
+  iconWrapper.className =
+    'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
+  iconWrapper.appendChild(iconSvg);
+
+  left.appendChild(iconWrapper);
+
+  const nameText = document.createElement('div');
+  nameText.className = 'text-sm text-white';
+  nameText.textContent = asset.name;
+  left.appendChild(nameText);
+
+  const amount = document.createElement('div');
+  amount.className = `text-sm ${
+    asset.type.toLowerCase() === 'investment'
+      ? 'text-green-300'
+      : asset.type.toLowerCase() === 'debt'
+      ? 'text-red-300'
+      : 'text-green-300'
+  }`;
+
+  const amountPrefix = asset.type.toLowerCase() === 'debt' ? '-' : '+';
+  amount.textContent = `${amountPrefix} $${asset.amount}`;
+
+  li.appendChild(left);
+  li.appendChild(amount);
+
+  ul.appendChild(li);
+});
+listWrapper.appendChild(ul)
+
     
 
   } else if (viewMode === 'projection') {
