@@ -41,7 +41,7 @@ Visit: http://127.0.0.1:5000
 - Run Tests: npm test
 - To run a specific test file (npx jest __tests__/tagParser.test.js) or (npx jest __tests__/tagParser.test.js) 
 
-**Common Issues to Watch For in testing **
+**Common Issues to Watch For in testing**
 - Make sure Chrome is installed and the correct version of chromedriver is being used.
 - Ensure Flask is running before running E2E tests.
 - If chromedriver mismatch error comes up, update your current Chrome version (chrome://settings/help) to the correct/latest version.
@@ -50,7 +50,8 @@ Visit: http://127.0.0.1:5000
 
 **Common Issues to Watch For on Code**
 - When uploading a file, it must be a CSV 
-- No special characters besides commas (,) between tags 
+- No special characters besides commas (,) between tags
+- With entries with the type savings, debt or investment should not have tags included, as they represent financial states not transactions 
 
 **Technologies Used**
 - HTML, CSS, JavaScript
