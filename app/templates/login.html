@@ -59,6 +59,7 @@
 
       <form method="POST" action="{{ url_for('main.login') }}" class="space-y-6">
         {{ form.hidden_tag() }}
+        <input type="hidden" name="next" value="{{ next_page or '' }}">
 
         <div>
           {{ form.username.label(class_="block text-sm mb-1") }}

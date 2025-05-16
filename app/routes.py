@@ -48,24 +48,27 @@ def register():
     return render_template('register.html', form=form)
 
 
-
 @main.route('/login', methods=['GET', 'POST'])
 def login():
+    # Grab next from either querystring or form data
+    next_page = request.values.get('next')  
+
+    # If they’re already logged in, send them on their way
     if current_user.is_authenticated:
-        return redirect(url_for('main.upload'))
+        return redirect(next_page) if next_page else redirect(url_for('main.upload'))
 
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
             flash("✅ Logged in successfully!")
-            return redirect(url_for('main.upload'))
+            return redirect(next_page) if next_page else redirect(url_for('main.upload'))
+        flash("❌ Invalid username or password.")
 
-        flash("❌ Invalid username or password.")  # Triggers if user not found or wrong password
+    # Render template, passing next_page along
+    return render_template('login.html', form=form, next_page=next_page)
 
-    return render_template('login.html', form=form)
 
 
 
