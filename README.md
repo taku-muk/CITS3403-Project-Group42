@@ -28,7 +28,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 **4. Run the App**
-flask run
+python -m flask run
 
 Visit: http://127.0.0.1:5000
 
