@@ -6,7 +6,7 @@ export function renderProjectionView(assetsData, targetContainer,income) {
 
   const sliders = [
     { id: 'savingsInterest', label: 'Savings Interest', min: 0, max: 10, value: 2, step: 0.1 },
-    { id: 'investmentReturn', label: 'Investment Return', min: 0, max: 15, value: 7, step: 0.1 },
+    { id: 'investmentReturn', label: 'Investment Return', min: 0, max: 30, value: 7, step: 0.1 },
     { id: 'debtGrowth', label: 'Debt Growth', min: 0, max: 30, value: 3, step: 0.1 }
   ];
 

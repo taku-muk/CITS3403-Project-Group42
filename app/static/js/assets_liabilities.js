@@ -91,10 +91,12 @@ export function renderAssetsAndLiabilities(assets, viewMode, totalIncome, netInc
   const grid = document.createElement('div');
   grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
 
-  Object.entries(aggregated).forEach(([name, data]) => {
+   // ─── fixed order ───
+   ['Savings','Investment','Debt'].forEach(name => {
+    const data = aggregated[name];
     const card = document.createElement('div');
     card.className = 'bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4';
-  
+    
     // Only show arrow for "Savings"
     let arrowHTML = '';
     if (name === 'Savings') {
@@ -104,29 +106,28 @@ export function renderAssetsAndLiabilities(assets, viewMode, totalIncome, netInc
         arrowHTML = '<i data-lucide="arrow-down-right" class="w-4 h-4 text-red-400 ml-1"></i>';
       }
     }
-  
+    
     card.innerHTML = `
-  <p class="text-[#838383] text-sm">${name}</p>
-  <div class="flex items-center">
-    <h3 class="text-xl font-bold">$${(data.amount || 0).toLocaleString()}</h3>
-    ${
-      name === 'Savings'
-        ? netIncome > 0
-          ? '<i data-lucide="arrow-up" class="w-5 h-5 text-green-400 ml-3"></i>'
-          : netIncome < 0
-          ? '<i data-lucide="arrow-down" class="w-5 h-5 text-red-400 ml-3"></i>'
-          : ''
-        : ''
-    }
-  </div>
-  <div class="w-full h-2 bg-[#151515] rounded-full mt-2">
-    <div class="bg-white h-2 rounded-full" style="width: ${data.progress}%"></div>
-  </div>
-`;
+      <p class="text-[#838383] text-sm">${name}</p>
+      <div class="flex items-center">
+        <h3 class="text-xl font-bold">$${(data.amount || 0).toLocaleString()}</h3>
+        ${
+          name === 'Savings'
+            ? netIncome > 0
+              ? '<i data-lucide="arrow-up" class="w-5 h-5 text-green-400 ml-3"></i>'
+              : netIncome < 0
+                ? '<i data-lucide="arrow-down" class="w-5 h-5 text-red-400 ml-3"></i>'
+                : ''
+            : ''
+        }
+      </div>
+      <div class="w-full h-2 bg-[#151515] rounded-full mt-2">
+        <div class="bg-white h-2 rounded-full" style="width: ${data.progress}%"></div>
+      </div>
+    `;
   
     grid.appendChild(card);
   });
-  
   outer.appendChild(grid);
 
 
