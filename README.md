@@ -16,7 +16,8 @@ CostScope is a full-stack Flask web application that lets users track expenses, 
 
 1. Clone the Repo
 git clone https://github.com/taku-muk/CITS3403-Project-Group42.git
-cd CostScope
+
+then (cd CITS3403-Project-Group42) 
 
 2. Create and Activate Virtual Environment
 python -m venv venv
