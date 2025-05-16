@@ -1,6 +1,6 @@
 import { renderProjectionView } from "/static/js/assets_liabilities_projection.js";
 
-export function renderAssetsAndLiabilities(assets,viewMode) {
+export function renderAssetsAndLiabilities(assets, viewMode, totalIncome, netIncome )  {
   const container = document.getElementById('assets-liabilities');
   container.innerHTML = '';
   console.log('assets:', assets);
@@ -24,9 +24,11 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
     }
   });
 
-  const savings = aggregated['Savings'].amount;
+  const savings = aggregated['Savings'].amount + netIncome;  // ⬅️ ADDED netIncome
+  aggregated['Savings'].amount += netIncome;
   const investment = aggregated['Investment'].amount;
   const debt = aggregated['Debt'].amount;
+
   const netWorth = (savings + investment) - debt;
 
   const outer = document.createElement('div');
@@ -68,11 +70,11 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
   chartBtn.appendChild(chartIcon);
 
   listBtn.addEventListener('click', () => {
-    if (viewMode !== 'list') renderAssetsAndLiabilities(assets, 'list');
+    if (viewMode !== 'list')  renderAssetsAndLiabilities(assets, 'list', totalIncome, netIncome);
   });
 
   chartBtn.addEventListener('click', () => {
-    if (viewMode !== 'projection') renderAssetsAndLiabilities(assets, 'projection');
+    if (viewMode !== 'projection') renderAssetsAndLiabilities(assets, 'projection', totalIncome, netIncome);
   });
 
   toggleContainer.appendChild(listBtn);
@@ -89,18 +91,41 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
   const grid = document.createElement('div');
   grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
 
-  Object.entries(aggregated).forEach(([name, data]) => {
+   // ─── fixed order ───
+   ['Savings','Investment','Debt'].forEach(name => {
+    const data = aggregated[name];
     const card = document.createElement('div');
     card.className = 'bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col gap-4';
-
+    
+    // Only show arrow for "Savings"
+    let arrowHTML = '';
+    if (name === 'Savings') {
+      if (netIncome > 0) {
+        arrowHTML = '<i data-lucide="arrow-up-right" class="w-4 h-4 text-green-400 ml-1"></i>';
+      } else if (netIncome < 0) {
+        arrowHTML = '<i data-lucide="arrow-down-right" class="w-4 h-4 text-red-400 ml-1"></i>';
+      }
+    }
+    
     card.innerHTML = `
       <p class="text-[#838383] text-sm">${name}</p>
-      <h3 class="text-xl font-bold">$${data.amount}</h3>
-      <div class="w-full h-2 bg-[#151515] rounded-full">
+      <div class="flex items-center">
+        <h3 class="text-xl font-bold">$${(data.amount || 0).toLocaleString()}</h3>
+        ${
+          name === 'Savings'
+            ? netIncome > 0
+              ? '<i data-lucide="arrow-up" class="w-5 h-5 text-green-400 ml-3"></i>'
+              : netIncome < 0
+                ? '<i data-lucide="arrow-down" class="w-5 h-5 text-red-400 ml-3"></i>'
+                : ''
+            : ''
+        }
+      </div>
+      <div class="w-full h-2 bg-[#151515] rounded-full mt-2">
         <div class="bg-white h-2 rounded-full" style="width: ${data.progress}%"></div>
       </div>
     `;
-
+  
     grid.appendChild(card);
   });
   outer.appendChild(grid);
@@ -123,58 +148,101 @@ export function renderAssetsAndLiabilities(assets,viewMode) {
   
  
   
-    const icons = {
-      savings: lucide.createElement(lucide.Wallet),
-      investment: lucide.createElement(lucide.TrendingUp),
-      debt: lucide.createElement(lucide.Landmark)
-    };
-  
-    assets.forEach(asset => {
-      const li = document.createElement('li');
-      li.className = 'flex items-center justify-between ';
-  
-      const left = document.createElement('div');
-      left.className = 'flex items-center gap-2';
-  
-      const iconSvg = icons[asset.type.toLowerCase()] || lucide.createElement(lucide.HelpCircle);
-      iconSvg.setAttribute('stroke', 'white');
-      iconSvg.setAttribute('width', '20');
-      iconSvg.setAttribute('height', '20');
-  
-      const iconWrapper = document.createElement('div');
-      iconWrapper.className = 'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
-      iconWrapper.appendChild(iconSvg);
-  
-      left.appendChild(iconWrapper);
-  
-      const nameText = document.createElement('div');
-      nameText.className = 'text-sm text-white';
-      nameText.textContent = asset.name;
-      left.appendChild(nameText);
-  
-      const amount = document.createElement('div');
-      amount.className = `text-sm ${
-        asset.type.toLowerCase() === 'investment' ? 'text-green-300'
-        : asset.type.toLowerCase() === 'debt' ? 'text-red-300'
-        : 'text-green-300'
-      }`;
-  
-      const amountPrefix = asset.type.toLowerCase() === 'debt' ? '-' : '+';
-      amount.textContent = `${amountPrefix} $${asset.amount}`;
-  
-      li.appendChild(left);
-      li.appendChild(amount);
-  
-      ul.appendChild(li);
-    });
-  
-    listWrapper.appendChild(ul);
+// ✅ keep only *constructors* in the map
+const iconMap = {
+  savings: lucide.Wallet,
+  investment: lucide.TrendingUp,
+  debt: lucide.Landmark
+};
+  // ✅ Insert "This Month's Income" item at top
+  const incomeLi = document.createElement('li');
+  incomeLi.className = 'flex items-center justify-between border-b border-[#333] pb-2 mb-2';
+
+  const left = document.createElement('div');
+  left.className = 'flex items-center gap-2';
+
+  const incomeIcon = lucide.createElement(lucide.DollarSign);
+  incomeIcon.setAttribute('stroke', '#FFFFFF'); // Tailwind green-500
+  incomeIcon.setAttribute('width', '22');
+  incomeIcon.setAttribute('height', '22');
+
+  const iconWrapper = document.createElement('div');
+  iconWrapper.className = 'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
+  iconWrapper.appendChild(incomeIcon);
+
+  const label = document.createElement('div');
+  label.className = 'text-sm text-white font-semibold';
+  label.textContent = "This Month's Income";
+
+  left.appendChild(iconWrapper);
+  left.appendChild(label);
+
+  const amount = document.createElement('div');
+  const incomeValue = Number(netIncome || 0);
+const isPositive = incomeValue >= 0;
+
+amount.className = `text-sm font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`;
+amount.textContent = `${isPositive ? '+' : '−'} $${Math.abs(incomeValue).toLocaleString()}`;
+
+  incomeLi.appendChild(left);
+  incomeLi.appendChild(amount);
+
+  ul.appendChild(incomeLi);
+
+
+
+assets.forEach(asset => {
+  const li = document.createElement('li');
+  li.className = 'flex items-center justify-between';
+
+  const left = document.createElement('div');
+  left.className = 'flex items-center gap-2';
+
+  // ✅ build a fresh SVG for every row
+  const Icon    = iconMap[asset.type?.toLowerCase()] || lucide.HelpCircle;
+  const iconSvg = lucide.createElement(Icon);
+  iconSvg.setAttribute('stroke', 'white');
+  iconSvg.setAttribute('width', '20');
+  iconSvg.setAttribute('height', '20');
+
+  const iconWrapper = document.createElement('div');
+  iconWrapper.className =
+    'w-10 h-10 flex items-center justify-center rounded-lg bg-[#1e1e1e] border border-[#333]';
+  iconWrapper.appendChild(iconSvg);
+
+  left.appendChild(iconWrapper);
+
+  const nameText = document.createElement('div');
+  nameText.className = 'text-sm text-white';
+  nameText.textContent = asset.name;
+  left.appendChild(nameText);
+
+  const amount = document.createElement('div');
+  amount.className = `text-sm ${
+    asset.type.toLowerCase() === 'investment'
+      ? 'text-green-300'
+      : asset.type.toLowerCase() === 'debt'
+      ? 'text-red-300'
+      : 'text-green-300'
+  }`;
+
+  const amountPrefix = asset.type.toLowerCase() === 'debt' ? '-' : '+';
+  amount.textContent = `${amountPrefix} $${asset.amount}`;
+
+  li.appendChild(left);
+  li.appendChild(amount);
+
+  ul.appendChild(li);
+});
+listWrapper.appendChild(ul)
+
     
 
   } else if (viewMode === 'projection') {
-    renderProjectionView(assets, listWrapper); // 🔥 inject chart into wrapper
+    renderProjectionView(assets, listWrapper, netIncome);
   }
 
 
   container.appendChild(outer);
+  lucide.createIcons();
 }

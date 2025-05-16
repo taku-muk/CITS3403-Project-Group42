@@ -8,6 +8,10 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   
 </head>
+<script>
+  // single source of truth, defaulting to frequency mode
+  window.sharedState = { view: 'frequency' };
+</script>
 
 
 
@@ -62,9 +66,10 @@
 
   <!-- Main Container -->
 
-    <div class="w-full max-w-6xl flex flex-col pt-32">
+    <div class="w-full max-w-6xl flex flex-col pt-16">
       <div class="flex items-end justify-between mb-10">
-        <h1 class="text-5xl sm:text-6xl font-semibold">Your Dashboard</h1>
+        <h1 class="text-5xl sm:text-6xl font-semibold">{{ title }}</h1>
+
           <!-- Share Button (top-right corner) -->
           <a href="{{ url_for('main.share_data') }}"
           class="bg-blue-500 hover:bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded transition">
@@ -132,7 +137,7 @@
     let currentView = 'list';  // global state
 
     renderTopCards(dashboardStats);
-    renderAssetsAndLiabilities(assetsData,currentView);
+    renderAssetsAndLiabilities(assetsData, currentView, dashboardStats.totalIncome,dashboardStats.netIncome);
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -173,7 +178,9 @@
     }
   }
 </script>
+
   
 
 </body>
 </html>
+

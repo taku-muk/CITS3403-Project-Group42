@@ -1,0 +1,24 @@
+name,type,amount,tags
+Rent,expense,1500.0,"Need,Recurring"
+Groceries,expense,320.0,"Need,Recurring"
+Gym Membership,expense,50.0,"Want,Recurring"
+Netflix Subscription,expense,15.0,"Want,Recurring"
+Salary,income,4200.0,Recurring
+Freelance Project,income,600.0,Recurring
+Dining Out,expense,120.0,"Need,Once-off"
+Electricity Bill,expense,90.0,"Need,Once-off"
+Internet Bill,expense,70.0,"Need,Once-off"
+Car Insurance,expense,100.0,"Need,Once-off"
+New Laptop,expense,1300.0,"Need,Once-off"
+Concert Ticket,expense,75.0,"Need,Once-off"
+Savings Deposit,income,500.0,Recurring
+Doctor Visit,expense,110.0,"Need,Once-off"
+Uber Rides,expense,60.0,"Need,Once-off"
+Gift for Friend,expense,45.0,"Need,Once-off"
+Water Bill,expense,40.0,"Need,Once-off"
+Emergency Fund,savings,500.0,
+Stock Portfolio,investment,1200.0,
+Student Loan,debt,30000.0,
+Emergency Fund,savings,500.0,
+Credit Card Repayment,debt,250.0,
+ETF Contribution,investment,300.0,

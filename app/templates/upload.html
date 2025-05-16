@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CostScope - Interactive Finance Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style type="text/tailwindcss">
     /* Hover effect for editable cells */
     td:hover { @apply bg-[#2a2a2a] cursor-pointer; }
@@ -19,6 +20,10 @@
     }
     .tag-option.unselected { @apply bg-gray-700 text-gray-300; }
     .tag-option.selected   { @apply bg-purple-600 text-white; }
+    .mode-btn.active {
+  background-color: #2A4A6D; /* dark blue */
+  color: #48AAFF;           /* light blue */
+}
   
     .tag-popup {
       @apply absolute bg-[#1e1e1e] border border-[#333] rounded-lg
@@ -56,15 +61,21 @@
     .tag-pill.Want {
       @apply bg-yellow-700 text-yellow-300 border-yellow-300;
     }
-    .tag-pill.Essential {
-      @apply bg-purple-700 text-purple-300 border-purple-300;
-    }
+ 
     .tag-pill.Recurring {
       @apply bg-indigo-700 text-indigo-300 border-indigo-300;
     }
     .tag-pill.Once\-off {
       @apply bg-orange-700 text-orange-300 border-orange-300;
     }
+    .mode-btn {
+  @apply px-4 py-2 rounded-full text-sm flex items-center gap-2 border border-gray-600 text-gray-200 hover:bg-[#2a2a2a] transition-colors;
+}
+
+/* When active, give it filled look */
+.mode-btn.active {
+  @apply bg-blue-500/20 text-blue-300 border-blue-400;
+}
     select option {
     background-color: #1e1e1e;
      color: white;
@@ -82,6 +93,62 @@ select:-webkit-autofill:focus {
 }
 
 </style>
+<style>
+  /* Confirmation Tooltip Styles */
+  .confirm-tooltip {
+    position: absolute;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    color: #e5e7eb;
+    font-size: 0.875rem;
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  .confirm-tooltip .confirm-text {
+    margin: 0 0 0.5rem 0;
+    font-weight: 500;
+  }
+  
+  .confirm-tooltip .confirm-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .confirm-tooltip button {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .confirm-tooltip .confirm-yes {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+  }
+  .confirm-tooltip .confirm-yes:hover {
+    background-color: #b91c1c;
+    border-color: #b91c1c;
+  }
+  
+  .confirm-tooltip .confirm-no {
+    background-color: transparent;
+    border-color: #555;
+    color: #bbb;
+  }
+  .confirm-tooltip .confirm-no:hover {
+    background-color: #333;
+    border-color: #666;
+    color: #fff;
+  }
+  </style>
 <script src="https://unpkg.com/lucide@latest"></script>
   
 </head>
@@ -150,26 +217,33 @@ select:-webkit-autofill:focus {
 
 <!-- Action Buttons -->
 <div class="bg-[#1e1e1e] rounded-full border border-[#333] px-6 py-4 flex items-center gap-4">
-  <button
-    id="manualBtn"
-    class="bg-[#2a2a2a] px-4 py-2 rounded-full text-sm flex items-center gap-2"
-  >
-    <span>＋</span> Manually input
+  <button id="manualBtn" class="mode-btn">
+    <i data-lucide="plus-circle" class="w-4 h-4"></i> Manually input
   </button>
-
-  <button
-    class="bg-[#2a2a2a] px-4 py-2 rounded-full text-sm flex items-center gap-2"
-  >
-    <span>☁️</span> Import
+  
+  <button id="importBtn" class="mode-btn">
+    <i data-lucide="cloud" class="w-4 h-4"></i> Import
   </button>
+  <div class="ml-auto flex items-center gap-3">
+    <button
+      id="attachmentBtn"
+      class="w-9 h-9 flex items-center justify-center  text-gray-300 hover:bg-[#2a2a2a] transition"
+      data-tooltip-target="attachmentTooltip"
+      aria-label="Attachment"
+    >
+    <i data-lucide="paperclip" class="w-5 h-5 text-gray-400"></i>
+    </button>
 
-  <!-- arrow button at the end -->
-  <button
-  id="visualizeBtn"
-  class="ml-auto bg-blue-500 hover:bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded text-xl font-bold transition"
->
-  →
-</button>
+
+  
+    <button
+      id="visualizeBtn"
+      class="w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center rounded text-xl font-bold transition"
+      aria-label="Submit"
+    >
+      →
+    </button>
+  </div>
 
 
 </div>
@@ -187,7 +261,7 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
     id="addTransactionBtn"
     class="bg-white text-black px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-sm hover:bg-gray-100 transition"
   >
-    <span>＋</span> Add
+    <span>+</span> Add
   </button>
 </div>
 
@@ -230,31 +304,43 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
 
   
 
+<div
+  id="attachmentTooltip"
+  class="hidden absolute z-50 bg-[#1e1e1e] text-gray-200 border border-[#333] rounded-lg p-4 text-sm w-64 shadow-lg"
+>
+  <p class="text-gray-400 text-sm">Loading attachment options...</p>
+</div>
 
 </main>
 
 <script>
-  const TAGS = ['Need', 'Want', 'Essential'];
+  const TAGS = ['Need', 'Want'];
   const addTransactionBtn = document.getElementById('addTransactionBtn');
-  const manualBtn           = document.getElementById('manualBtn');
+  const manualBtn = document.getElementById('manualBtn');
   const tableBody = document.getElementById('transactionTableBody');
   const transactionsSection   = document.getElementById('transactionsSection');
   const importBtn = document.querySelector('#manualBtn').nextElementSibling; // finds the Import button
   const importSection = document.getElementById('importSection');
 
+  
 
 // Show the table when “Manually input” is clicked and hide the import 
 manualBtn.addEventListener('click', () => {
   transactionsSection.classList.remove('hidden');
   importSection.classList.add('hidden');
+
+  manualBtn.classList.add('active');
+  importBtn.classList.remove('active');
 });
 
-
-// show the import and hide the manual 
 importBtn.addEventListener('click', () => {
   transactionsSection.classList.add('hidden');
   importSection.classList.remove('hidden');
+
+  importBtn.classList.add('active');
+  manualBtn.classList.remove('active');
 });
+
 
 
   // Make a cell editable by turning it into an input
@@ -313,8 +399,8 @@ const TAG_CATEGORIES = [
   {
     key: 'importance',
     label: 'Importance',
-    single: false,
-    options: ['Need', 'Want', 'Essential']
+    single: true,
+    options: ['Need', 'Want']
   }
 ];
 
@@ -434,7 +520,8 @@ if (existing.frequency) {
 }
 
 // render each importance tag as its own pill
-(existing.importance || []).forEach(tag => {
+const importanceTags = ([]).concat(existing.importance || []);
+  importanceTags.forEach(tag => {
   const p = document.createElement('span');
   p.textContent = tag;
   p.className = 'tag-pill ' + tag;
@@ -502,6 +589,7 @@ if (existing.frequency) {
 });
   // ✅ append the row at the end
   tableBody.appendChild(row);
+  
 });
 
 document.getElementById('visualizeBtn').addEventListener('click', async () => {
@@ -558,10 +646,27 @@ document.getElementById('visualizeBtn').addEventListener('click', async () => {
     setupImportArea("dropzone");
   });
 </script>
+<script type="module">
+  import { setupRowDeleteConfirmation } from '/static/js/rowDeleteConfirm.js';
+  // target the tbody where rows live:
+  setupRowDeleteConfirmation('#transactionTableBody');
+</script>
+
 
 <script>
   lucide.createIcons();
 </script>
+<script type="module">
+  import { setupAttachmentTooltip } from "/static/js/attachmentTooltip.js";
+  import { prefillTransactions } from "/static/js/prefillTemplates.js";
+
+  window.prefillTransactions = prefillTransactions; // expose globally if needed by attachmentTooltip.js
+
+  window.addEventListener("DOMContentLoaded", () => {
+    setupAttachmentTooltip("attachmentBtn", "attachmentTooltip");
+  });
+</script>
+
 
 
 </body>

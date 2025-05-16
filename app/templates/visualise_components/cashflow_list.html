@@ -1,4 +1,157 @@
-<div class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex items-center justify-center h-80">
-    <h2 class="text-[#838383] text-xl">[Expenses Breakdown Placeholder]</h2>
+<style>
+  /* give a little extra breathing room on the right */
+  #breakdownList {
+    padding-right: 1rem;
+    scrollbar-width: thin;               /* Firefox */
+    scrollbar-color: #333333 #1e1e1e;    /* thumb track */
+  }
+
+  /* WebKit browsers */
+  #breakdownList::-webkit-scrollbar {
+    width: 0.5rem;                       /* thinner scrollbar */
+  }
+  #breakdownList::-webkit-scrollbar-track {
+    background: #1e1e1e;                 /* match widget bg */
+  }
+  #breakdownList::-webkit-scrollbar-thumb {
+    background-color: #333333;           /* darker filled look */
+    border-radius: 0.25rem;              /* rounded corners */
+    border: 2px solid #1e1e1e;           /* pad thumb so it floats */
+  }
+</style>
+
+
+<!-- templates/visualise_components/cashflow_list.html -->
+<div class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] flex flex-col h-80">
+  <!-- Bubble-Style Filter Pills -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <!-- Frequency -->
+    <button type="button"
+            class="filter-btn px-3 py-1 rounded-full border border-[#555555] bg-transparent text-[#bbbbbb] text-xs font-medium hover:bg-[#2a2a2a] transition"
+            data-filter-key="frequency"
+            data-filter-val="Recurring">
+      Recurring
+    </button>
+    <button type="button"
+            class="filter-btn px-3 py-1 rounded-full border border-[#555555] bg-transparent text-[#bbbbbb] text-xs font-medium hover:bg-[#2a2a2a] transition"
+            data-filter-key="frequency"
+            data-filter-val="Once-off">
+      Once-off
+    </button>
+  
+    <!-- Importance -->
+    <button type="button"
+            class="filter-btn px-3 py-1 rounded-full border border-[#555555] bg-transparent text-[#bbbbbb] text-xs font-medium hover:bg-[#2a2a2a] transition"
+            data-filter-key="importance"
+            data-filter-val="Need">
+      Need
+    </button>
+    <button type="button"
+            class="filter-btn px-3 py-1 rounded-full border border-[#555555] bg-transparent text-[#bbbbbb] text-xs font-medium hover:bg-[#2a2a2a] transition"
+            data-filter-key="importance"
+            data-filter-val="Want">
+      Want
+    </button>
+  
+    <!-- Clear -->
+    <button id="clearFilters"
+            type="button"
+            class="ml-auto text-sm text-gray-400 hover:underline">
+      Clear
+    </button>
   </div>
+  
+  
+  <!-- Scrollable Breakdown List -->
+  <ul id="breakdownList" class="flex-1 overflow-y-auto divide-y divide-[#333] pr-4">
+    {% for tx in transactions %}
+      <li class="py-2 flex justify-between items-center"
+          data-frequency="{{ tx.tags.frequency }}"
+          data-importance="{{ tx.tags.importance }}">
+        <div class="space-y-0.5">
+          <div class="font-medium">{{ tx.name }}</div>
+          <div class="text-xs text-gray-500">{{ tx.type|capitalize }}</div>
+        </div>
+        <div class="font-medium">
+          {{ '+' if tx.type == 'income' else '−' }}${{ '%.2f'|format(tx.amount) }}
+        </div>
+      </li>
+    {% else %}
+      <li class="py-2 text-gray-500">No transactions to display.</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.filter-btn');
+    const clearBtn = document.getElementById('clearFilters');
+  
+    // Helper to reset a button to its inactive style
+    function deactivate(btn) {
+      console.log(window.sharedState.view)
+      btn.classList.remove('active', 'bg-[#333333]', 'text-white', 'border-[#333333]');
+      btn.classList.add('bg-transparent', 'text-[#bbbbbb]', 'border-[#555555]');
+    }
+  
+    // Helper to set a button to its active style
+    function activate(btn) {
+      btn.classList.remove('bg-transparent', 'text-[#bbbbbb]', 'border-[#555555]');
+      btn.classList.add('active', 'bg-[#333333]', 'text-white', 'border-[#333333]');
+    }
+  
+    buttons.forEach(btn => btn.addEventListener('click', () => {
+      const key = btn.dataset.filterKey;
+  
+      // 1) Deactivate any other button in this same group
+      buttons.forEach(other => {
+        if (other !== btn && other.dataset.filterKey === key) {
+          deactivate(other);
+        }
+      });
+  
+      // 2) Toggle this one
+      if (btn.classList.contains('active')) {
+        deactivate(btn);
+      } else {
+        activate(btn);
+        // Automatically update shared state based on selected group
+       const key = btn.dataset.filterKey;
+       if (key === 'frequency' || key === 'importance') {
+       window.sharedState.view = key;
+  }
+      }
+  
+      // 3) Re-fetch with the new filter state
+      fetchFiltered();
+    }));
+  
+    clearBtn.addEventListener('click', () => {
+      // Reset all buttons
+      buttons.forEach(deactivate);
+      fetchFiltered();
+    });
+  
+    function fetchFiltered() {
+      // Pick the one active frequency and importance
+      const freqBtn = Array.from(buttons)
+        .find(b => b.dataset.filterKey === 'frequency' && b.classList.contains('active'));
+      const impBtn  = Array.from(buttons)
+        .find(b => b.dataset.filterKey === 'importance' && b.classList.contains('active'));
+  
+      const freq = freqBtn  ? [freqBtn.dataset.filterVal] : [];
+      const imp  = impBtn   ? [impBtn.dataset.filterVal]  : [];
+  
+      fetch('{{ url_for("main.breakdown_list") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ frequency: freq, importance: imp })
+      })
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('breakdownList').innerHTML = html;
+      });
+    }
+  });
+  </script>
   

@@ -1,71 +1,196 @@
-<style>
+<style type="text/tailwindcss">
+    /* 1. Chart size */
     #cashFlowChart {
-        width: 100% !important;
-        height: 100% !important;
+      width: 100% !important;
+      height: 100% !important;
     }
-    </style>
-    
-    <div class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] h-80 relative">
-      <canvas id="cashFlowChart"></canvas>
-      <div id="cashFlowCenterText" class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white pointer-events-none">
-          $500
-      </div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      const chartData = JSON.parse('{{ chart_data | tojson | safe }}');
-  const totalIncome = chartData.totalIncome;
-  const tagTotals = chartData.tagTotals;
-  const leftover = chartData.leftover;
   
-  // Extract labels and data
-  const labels = Object.keys(tagTotals);
-  const data = Object.values(tagTotals);
-  
-  // Add leftover to make proportions correct
-  labels.push('Leftover');
-  data.push(leftover);
-  
-  // Update the center text
-  document.getElementById('cashFlowCenterText').textContent = `$${totalIncome.toFixed(2)}`;
+  /* Inactive: hollow grey button */
+  /* Hover on inactive: slightly darker warm grey */
+  .mode-btn {
+  background-color: transparent;
+  color: #bbbbbb;             /* warm light grey text */
+  border: 1px solid #555555;  /* warm medium border */
+  border-radius: 0.5rem;    /* rounded-md */
+  padding: 0.25rem 0.75rem;
+  text-align: left;
+  transition: all 0.2s ease;
+}
 
+/* Hover on inactive button */
+.mode-btn:hover:not(.active) {
+  background-color: #2a2a2a; /* slightly warm dark grey */
+}
+
+/* Active selected button */
+.mode-btn.active {
+  background-color: #333333; /* warm filled */
+  color: white;
+  border-color: #333333;
+  border-radius: 0.5rem;     /* rounded-lg for softer edges */
+}
+
+
+  </style>
   
-  const ctx = document.getElementById('cashFlowChart').getContext('2d');
+  <div class="bg-[#1e1e1e] p-6 rounded-xl border border-[#333] h-80 relative">
+    <!-- Toggle Buttons -->
+    <div class="absolute top-4 left-4 flex flex-col gap-2 z-10 min-w-max">
+        
+        <!-- Recurring vs Once-off -->
+        <button
+          id="frequencyToggle"
+          class="mode-btn active flex justify-center items-center w-full px-3 py-1 text-xs"
+        >
+          Recurring vs Once-off
+        </button>
+
+        <!-- Need vs Want -->
+        <button
+          id="importanceToggle"
+          class="mode-btn  flex justify-center items-center w-full px-3 py-1 text-xs"
+        >
+          Need vs Want
+        </button>
+      
+      </div>
   
+    <!-- Chart Canvas -->
+    <canvas id="cashFlowChart"></canvas>
   
-  new Chart(ctx, {
+    <!-- Center Text -->
+    <div
+      id="cashFlowCenterText"
+      class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white pointer-events-none"
+    >
+      $0
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    /* ───────────── 1. Data from Flask ───────────── */
+    const chartData   = JSON.parse('{{ chart_data|tojson|safe }}');
+    const totalIncome = chartData.totalIncome;
+    
+    /* ───────────── 2. Helpers & constants ───────── */
+    const GREY_BG   = '#52525b33';
+    const GREY_LINE = '#52525b';
+    
+    /**
+     * Build a dataset whose first slice is always grey.
+     * Guarantees ≥ 2 slices so Chart.js keeps the doughnut-shape,
+     * and falls back to a single grey “No data” slice when everything is 0.
+     */
+    function buildDataset(labelMap, leftover) {
+      let labels = ['Leftover', ...Object.keys(labelMap)];
+      let data   = [leftover,   ...Object.values(labelMap)];
+    
+      if (labels.length < 2) {           // ensure at least two
+        labels.push('Other');
+        data.push(0);
+      }
+    
+      if (data.every(v => v === 0)) {    // nothing at all → single slice
+        labels = ['No data'];
+        data   = [1];
+      }
+      return { labels, data };
+    }
+    
+    /* ───────────── 3. Prepare both modes ────────── */
+    const imp  = buildDataset(chartData.importanceTotals,  chartData.importanceLeftover);
+    const freq = buildDataset(chartData.frequencyTotals,   chartData.frequencyLeftover);
+    
+    /* ───────────── 4. Centre text ───────────────── */
+    document.getElementById('cashFlowCenterText').textContent =
+      `$${totalIncome.toFixed(2)}`;
+    
+    /* ───────────── 5. Colour palettes (grey first) */
+    const freqBG   = [GREY_BG,  '#a855f733', '#60a5fa33'];
+    const freqLine = [GREY_LINE,'#a855f7',   '#60a5fa'];
+    
+    const impBG    = [GREY_BG,  '#f59e0b33', '#fcd34d33'];
+    const impLine  = [GREY_LINE,'#f59e0b',   '#fcd34d'];
+    
+    /* ───────────── 6. Chart initialised in “freq” ─ */
+    const ctx = document.getElementById('cashFlowChart').getContext('2d');
+    const chart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-          labels: labels,
-          datasets: [{
-              data: data,
-              backgroundColor: [
-                  'rgba(165, 180, 252, 0.2)',  // Essential
-                  'rgba(216, 180, 254, 0.2)',  // Want
-                  'rgba(170, 170, 170, 0.2)',  // Grey leftover
-              ],
-              borderColor: [
-                  '#4338CA',  // Essential
-                  '#6B21A8',  // Want
-                  '#333333',  // Grey leftover
-              ],
-              borderWidth: 1,
-          }]
+        labels: freq.labels,
+        datasets: [{
+          data: freq.data,
+          backgroundColor: freqBG.slice(0, freq.labels.length),
+          borderColor:     freqLine.slice(0, freq.labels.length),
+          borderWidth: 1
+        }]
       },
       options: {
-          cutout: '70%',
-          maintainAspectRatio: false,
-          plugins: {
-              legend: {
-                  display: false
-              },
-              tooltip: {
-                  enabled: true
-              }
-          }
+        cutout: '70%',
+        maintainAspectRatio: false,
+        plugins: {
+          legend:  { display: false },
+          tooltip: { enabled: true }
+        }
       }
-  });
-  
-      </script>
-      
+    });
+    
+    /* ───────────── 7. Toggle buttons ────────────── */
+    const btnImp  = document.getElementById('importanceToggle');
+    const btnFreq = document.getElementById('frequencyToggle');
+    
+    function applyDataset(ds, bg, line) {
+      chart.data.labels                      = [...ds.labels];
+      chart.data.datasets[0].data            = [...ds.data];
+      chart.data.datasets[0].backgroundColor = bg.slice(0, ds.labels.length);
+      chart.data.datasets[0].borderColor     = line.slice(0, ds.labels.length);
+      chart.update();
+    }
+    
+    btnImp.addEventListener('click', () => {
+      if (btnImp.classList.contains('active')) return;
+      btnImp.classList.add('active');
+      btnFreq.classList.remove('active');
+      applyDataset(imp, impBG, impLine);
+    });
+    
+    btnFreq.addEventListener('click', () => {
+      if (btnFreq.classList.contains('active')) return;
+      btnFreq.classList.add('active');
+      btnImp.classList.remove('active');
+      applyDataset(freq, freqBG, freqLine);
+    });
+
+    function setView(view) {
+      if (window.sharedState.view === view) return;
+
+  window.sharedState.view = view;
+
+  // Update button styling
+  btnFreq.classList.toggle('active', view === 'frequency');
+  btnImp.classList.toggle('active', view === 'importance');
+
+  // Update the chart
+  if (view === 'frequency') {
+    applyDataset(freq, freqBG, freqLine);
+  } else {
+    applyDataset(imp, impBG, impLine);
+  }
+}
+
+// Chart toggle buttons
+btnFreq.addEventListener('click', () => setView('frequency'));
+btnImp.addEventListener('click', () => setView('importance'));
+
+// Sync chart with shared state if list changes it later
+window.addEventListener('viewChanged', (e) => {
+  setView(e.detail.view);
+});
+
+// Optional: set initial state based on sharedState
+setView(window.sharedState.view);
+
+    </script>
+    

@@ -35,15 +35,33 @@
       
         <!-- Center: Navigation -->
         <nav class="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm font-semibold">
-          <!-- Active Link -->
-          <a href="{{ url_for('main.home') }}" class="text-white underline underline-offset-4">Home</a>
-        
-          <!-- Other Links -->
-          <a href="{{ url_for('main.upload') }}" class="text-gray-300 hover:text-white transition">Upload</a>
-          <a href="{{ url_for('main.visualise') }}" class="text-gray-300 hover:text-white transition">Visualize</a>
-          
-        </nav>
-        
+  <a href="{{ url_for('main.home') }}"
+     class="text-white underline underline-offset-4">
+    Home
+  </a>
+
+  {% if current_user.is_authenticated %}
+  <a href="{{ url_for('main.upload') }}"
+     class="text-gray-300 hover:text-white transition">
+    Upload
+  </a>
+  <a href="{{ url_for('main.visualise') }}"
+     class="text-gray-300 hover:text-white transition">
+    Visualise
+  </a>
+{% else %}
+  <a href="{{ url_for('main.login', next=url_for('main.upload')) }}"
+     class="text-gray-300 hover:text-white transition">
+    Upload
+  </a>
+  <a href="{{ url_for('main.login', next=url_for('main.visualise')) }}"
+     class="text-gray-300 hover:text-white transition">
+    Visualise
+  </a>
+{% endif %}
+
+</nav>
+
        
  <!-- Right: Login or User Info -->
 <div class="flex items-center gap-4">
@@ -83,11 +101,18 @@
             Start Creating →
           </a>
         
-          <a href="{{ url_for('main.shared_with_me') }}"
-             class="border border-white text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1 hover:bg-white hover:text-black">
-            View Reports
+          {% if current_user.is_authenticated %}
+           <a href="{{ url_for('main.shared_with_me') }}"
+           class="border border-white text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1 hover:bg-white hover:text-black">
+          View Reports
           </a>
-        </div>
+          {% else %}
+          <a href="{{ url_for('main.login', next=url_for('main.shared_with_me')) }}"
+          class="border border-white text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1 hover:bg-white hover:text-black">
+          View Reports
+          </a>
+        {% endif %}
+           </div>
         
         
      

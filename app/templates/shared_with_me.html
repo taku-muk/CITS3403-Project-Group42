@@ -59,52 +59,50 @@
     </div>
   </header>
 
-  <!-- ✅ ADD top padding to push content below header -->
-  <div class="pt-32 flex justify-center">
+  <div class="flex justify-center">
     <div class="max-w-5xl w-full px-4 space-y-16">
-
-      <!-- Your Reports Section -->
-      <div>
-        <div class="flex items-center justify-between mb-10">
-          <h2 class="text-5xl font-semibold">
-            Your reports
-            <span class="text-[#666666] text-4xl">6</span>
-          </h2>
-
-          <button class="p-2 text-[#666666] hover:text-white focus:outline-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="5" r="1.5" />
-              <circle cx="12" cy="12" r="1.5" />
-              <circle cx="12" cy="19" r="1.5" />
-            </svg>
-          </button>
-        </div>
-
+      <!-- Reports You Shared Section -->
+      <div class="mt-20">
+        <h2 class="text-3xl font-semibold mb-10">
+          Reports you shared
+          <span class="text-[#666666] text-2xl">{{ sent_reports|length }}</span>
+        </h2>
+  
         <div class="grid grid-cols-3 gap-6">
-          <!-- Create New Report Card -->
-          <a href="{{ url_for('main.login') }}"
-          class="relative group border border-[#333333] rounded-xl aspect-[4/3] flex items-center justify-center
-                 hover:border-[#444] transition cursor-pointer overflow-hidden">
-         <span class="text-[#666666] text-center group-hover:text-white transition text-lg leading-tight">
-           +<br>Create New Report
-         </span>
-       </a>
-
-          <!-- Existing Report Card -->
-          <div class="relative border border-[#333333] rounded-xl aspect-[4/3] flex flex-col justify-end hover:border-[#444] cursor-pointer overflow-hidden">
+          {% for report in sent_reports %}
+          <a href="{{ url_for('main.view_shared_report', report_id=report.id) }}"
+             class="relative border border-[#333333] rounded-xl aspect-[4/3] flex flex-col justify-end hover:border-[#444] cursor-pointer overflow-hidden group">
             <div class="absolute top-0 left-0 w-full h-[65%] bg-[#181818]"></div>
+            <span class="absolute top-2 right-2 w-8 h-8 rounded-full bg-[#333333]
+             flex items-center justify-center text-xs font-semibold group-hover:bg-[#444]">
+              {{ report.recipient_username[:2]|upper }}
+            </span>
             <div class="absolute top-[65%] left-0 w-full h-px bg-[#333333]"></div>
+  
             <div class="absolute top-[65%] left-0 w-full p-4">
-              <div class="text-sm font-semibold">february report</div>
-              <div class="text-xs text-[#666666]">10 feb 10:25</div>
+              <div class="text-sm font-semibold truncate">{{ report.report_title|lower }}</div>
+              <div class="text-xs text-[#666666]">
+                To {{ report.recipient_username }} •
+                {{ report.timestamp.strftime('%d %b %H:%M') }}
+              </div>
             </div>
-          </div>
-
-          <!-- Empty grid cell -->
-          <div class="border border-transparent aspect-[4/3]"></div>
+          </a>
+          {% endfor %}
+  
+          {% if sent_reports|length % 3 != 0 %}
+            {% for _ in range(3 - (sent_reports|length) % 3) %}
+              <div class="border border-transparent aspect-[4/3]"></div>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
+    </div>
+  </div>
+  
 
+  <!-- ✅ ADD top padding to push content below header -->
+  <div class=" flex justify-center">
+    <div class="max-w-5xl w-full px-4 space-y-16">
       <!-- Shared To You Section -->
       <div class="mt-20">
         <h2 class="text-3xl font-semibold mb-10">
