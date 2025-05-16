@@ -1,0 +1,13 @@
+{% for tx in transactions %}
+  <li class="py-2 flex justify-between items-center"
+      data-frequency="{{ tx.tags.frequency }}"
+      data-importance="{{ tx.tags.importance }}">
+    <div class="space-y-0.5">
+      <div class="font-medium">{{ tx.name }}</div>
+      <div class="text-xs text-gray-500">{{ tx.type|capitalize }}</div>
+    </div>
+    <div class="font-semibold">${{ '%.2f'|format(tx.amount) }}</div>
+  </li>
+{% else %}
+  <li class="py-2 text-gray-500">No transactions to display.</li>
+{% endfor %}

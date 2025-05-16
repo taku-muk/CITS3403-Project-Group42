@@ -162,5 +162,35 @@
       btnImp.classList.remove('active');
       applyDataset(freq, freqBG, freqLine);
     });
+
+    function setView(view) {
+      if (window.sharedState.view === view) return;
+
+  window.sharedState.view = view;
+
+  // Update button styling
+  btnFreq.classList.toggle('active', view === 'frequency');
+  btnImp.classList.toggle('active', view === 'importance');
+
+  // Update the chart
+  if (view === 'frequency') {
+    applyDataset(freq, freqBG, freqLine);
+  } else {
+    applyDataset(imp, impBG, impLine);
+  }
+}
+
+// Chart toggle buttons
+btnFreq.addEventListener('click', () => setView('frequency'));
+btnImp.addEventListener('click', () => setView('importance'));
+
+// Sync chart with shared state if list changes it later
+window.addEventListener('viewChanged', (e) => {
+  setView(e.detail.view);
+});
+
+// Optional: set initial state based on sharedState
+setView(window.sharedState.view);
+
     </script>
     

@@ -1,6 +1,6 @@
 # app/routes.py
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request,session
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -179,7 +179,8 @@ def visualise():
         },
         assets_data=assets_data,
         title="Your Dashboard",
-        chart_data=chart_data
+        chart_data=chart_data,
+        transactions=user_expenses
     )
 
 # -------------------------- Cashflow Ring --------------------------
@@ -213,6 +214,50 @@ def cashflow():
 
     return render_template('cashflow_ring.html', chart_data=chart_data)
 
+# -------------------------- Expenses Breakdown --------------------------
+
+@main.route('/breakdown_list', methods=['GET','POST'])
+@login_required
+def breakdown_list():
+    user_expenses = Expense.query.filter_by(user_id=current_user.id).all()
+
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        freq_filters = data.get('frequency', [])
+        imp_filters = data.get('importance', [])
+    else:
+        freq_filters = imp_filters = []
+
+    filtered = []
+    for exp in user_expenses:
+        tags = json.loads(exp.tags or '{}')
+        freq = tags.get('frequency','')
+        imp = tags.get('importance','')
+        if isinstance(imp, list):
+            imp = imp[0] if imp else ''
+
+        if freq_filters and freq not in freq_filters:
+            continue
+        if imp_filters and imp not in imp_filters:
+            continue
+
+        filtered.append({
+            'name':   exp.name,
+            'type':   exp.type,
+            'amount': exp.amount,
+            'tags':   { 'frequency': freq, 'importance': imp }
+        })
+
+    if request.method == 'POST':
+        return render_template(
+            'visualise_components/cashflow_items.html',
+            transactions=filtered
+        )
+
+    return render_template(
+        'visualise_components/cashflow_list.html',
+        transactions=filtered
+    )
 
 # -------------------------- Sharing --------------------------
 
@@ -365,7 +410,7 @@ def view_shared_report(report_id):
 def revoke_report(report_id):
     report = SharedReport.query.get_or_404(report_id)
 
-    if report.sender_id != current_user.id:
+    if report.owner_id != current_user.id:
         flash("❌ You can only revoke reports you shared.", "error")
         return redirect(url_for('main.share_data'))
 
