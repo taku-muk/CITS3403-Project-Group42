@@ -36,6 +36,10 @@ Visit: http://127.0.0.1:5000
 
 
 **Running Tests**
+- Make sure you're in the root of the project, then run: npm install 
+- If your end-to-end tests hit the actual site (http://127.0.0.1:5000), start your Flask app first in a separate terminal: flask run (make sure flask is running while testing) 
+- Run Tests: npm test
+- To run a specific test file (npx jest __tests__/tagParser.test.js) or (npx jest __tests__/tagParser.test.js) 
 
 **Technologies Used**
 - HTML, CSS, JavaScript
