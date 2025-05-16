@@ -1,4 +1,4 @@
-**CostScope – Personal Finance Dashboard**
+w**CostScope – Personal Finance Dashboard**
 
 CostScope is a full-stack Flask web application that lets users track expenses, visualize spending habits, and run powerful financial simulations like "What-if I lived in another city?". Users can upload data manually or via CSV, receive personalized visual dashboards, and share reports with friends.
 
@@ -78,7 +78,6 @@ CITS3403-Project-Group42-main/
         ├── 7039e8323eca_add_sharedreport_model.py
         └── __pycache__/
             └── 7039e8323eca_add_sharedreport_model.cpython-313.pyc
-
 
 
 **Setup Instructions**
