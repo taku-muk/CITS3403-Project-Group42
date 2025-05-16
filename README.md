@@ -42,12 +42,9 @@ Visit: http://127.0.0.1:5000
 - To run a specific test file (npx jest __tests__/tagParser.test.js) or (npx jest __tests__/tagParser.test.js) 
 
 **Common Issues to Watch For**
-Make sure Chrome is installed and the correct version of chromedriver is being used.
-Ensure Flask is running before running E2E tests.
-If chromedriver mismatch error comes up, let me know your current Chrome version (chrome://settings/help) so we can lock the correct version.
-
-
-
+- Make sure Chrome is installed and the correct version of chromedriver is being used.
+- Ensure Flask is running before running E2E tests.
+- If chromedriver mismatch error comes up, let me know your current Chrome version (chrome://settings/help) so we can lock the correct version.
 
 
 **Technologies Used**
