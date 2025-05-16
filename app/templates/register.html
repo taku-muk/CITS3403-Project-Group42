@@ -19,12 +19,11 @@
 
 <body class="bg-black text-white min-h-screen flex flex-col relative">
 
-  <!-- Back-to-Home Button -->
+  <!-- 1. BACK-TO-HOME BUTTON (always on top) -->
   <a href="{{ url_for('main.home') }}"
-     class="fixed top-6 right-6 text-gray-400 hover:text-white text-sm font-semibold transition">
-    ← Home
-  </a>
-
+  class="fixed top-6 right-6 text-gray-400 hover:text-white text-sm font-semibold transition">
+ ← Home
+</a>
   <!-- Logo (clickable) -->
   <a href="{{ url_for('main.home') }}" class="absolute top-6 left-20 flex items-center gap-3 z-10 hover:opacity-80 cursor-pointer transition">
     <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24"
