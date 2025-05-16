@@ -398,7 +398,8 @@ def view_shared_report(report_id):
         total_expenditure   = total_expenditure,
         net_income          = net_income,
         run_rate_months     = run_rate_months,
-        available_funds     = available_funds
+        available_funds     = available_funds,
+        transactions        = owner_expenses
         
     )
 

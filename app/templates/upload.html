@@ -316,7 +316,7 @@ class="hidden bg-[#1e1e1e] p-6 rounded-xl border border-[#333]"
 <script>
   const TAGS = ['Need', 'Want'];
   const addTransactionBtn = document.getElementById('addTransactionBtn');
-  const manualBtn           = document.getElementById('manualBtn');
+  const manualBtn = document.getElementById('manualBtn');
   const tableBody = document.getElementById('transactionTableBody');
   const transactionsSection   = document.getElementById('transactionsSection');
   const importBtn = document.querySelector('#manualBtn').nextElementSibling; // finds the Import button
@@ -520,7 +520,8 @@ if (existing.frequency) {
 }
 
 // render each importance tag as its own pill
-(existing.importance || []).forEach(tag => {
+const importanceTags = ([]).concat(existing.importance || []);
+  importanceTags.forEach(tag => {
   const p = document.createElement('span');
   p.textContent = tag;
   p.className = 'tag-pill ' + tag;
