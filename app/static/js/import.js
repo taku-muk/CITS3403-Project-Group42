@@ -123,7 +123,7 @@ export function setupImportArea(dropzoneId) {
  * Splits a CSV line on commas that are not inside double quotes.
  * Retains quoted substrings (with quotes).
  */
-function splitCsvLine(line) {
+export function splitCsvLine(line) {
   const result = [];
   let curr = '';
   let inQuotes = false;
@@ -152,7 +152,7 @@ function splitCsvLine(line) {
  *   ② Plain list: need,recurring   want;once-off   need|once-off
  * Returns { frequency?: string, importance?: string[] }
  */
-function parseTagsCell(raw) {
+export function parseTagsCell(raw) {
   if (!raw) return {};
 
   let txt = raw.trim().replace(/\r?\n/g, '');
@@ -196,7 +196,7 @@ function parseTagsCell(raw) {
 /**
  * Given a <td> and tags object, clears raw text and appends <span> pills.
  */
-function renderTagPills(td, tags) {
+export function renderTagPills(td, tags) {
   td.textContent = '';  // clear anything
   if (tags.frequency) {
     const f = document.createElement('span');

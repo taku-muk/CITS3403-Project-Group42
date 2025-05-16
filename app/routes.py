@@ -1,6 +1,7 @@
 # app/routes.py
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request,session
+
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from collections import defaultdict
@@ -24,6 +25,10 @@ def home():
 @main.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+    # Manually check if passwords match
+    if form.password.data != form.confirm.data:
+        flash("❌ Passwords do not match.", "error")
+        return render_template('register.html', form=form)
     if form.validate_on_submit():
         if User.query.filter_by(username=form.username.data).first():
             flash("❌ Username is already taken. Please choose another.")
@@ -37,30 +42,42 @@ def register():
         db.session.commit()
         flash("✅ Registered successfully! Please log in.")
         return redirect(url_for('main.login'))
+       # ✅ Add this block to flash validation errors when form fails
+    
 
     return render_template('register.html', form=form)
 
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
+    # Grab next from either querystring or form data
+    next_page = request.values.get('next')  
+
+    # If they’re already logged in, send them on their way
     if current_user.is_authenticated:
-        return redirect(url_for('main.upload'))
+        return redirect(next_page) if next_page else redirect(url_for('main.upload'))
 
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user:
+        if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
             flash("✅ Logged in successfully!")
-            return redirect(url_for('main.upload'))
+            return redirect(next_page) if next_page else redirect(url_for('main.upload'))
         flash("❌ Invalid username or password.")
-    return render_template('login.html', form=form)
+
+    # Render template, passing next_page along
+    return render_template('login.html', form=form, next_page=next_page)
+
+
 
 
 @main.route('/logout')
 @login_required
 def logout():
     logout_user()
+    session.pop('_flashes', None)  # 🧹 Clear old messages
+    flash("✅ Logged out successfully.")
     return redirect(url_for('main.login'))
 
 
@@ -161,6 +178,7 @@ def visualise():
             'runRate': run_rate_months
         },
         assets_data=assets_data,
+        title="Your Dashboard",
         chart_data=chart_data
     )
 
@@ -256,6 +274,8 @@ def view_shared_report(report_id):
 
     # ── 1. Load the owner’s expenses ───────────────────────────
     owner_expenses = Expense.query.filter_by(user_id=shared.owner_id).all()
+    owner = User.query.get(shared.owner_id)
+    owner_name = owner.username if owner else 'Unknown'
 
     # ── 2. Core numbers ────────────────────────────────────────
     total_income      = sum(e.amount for e in owner_expenses if e.type == 'income')
@@ -323,6 +343,7 @@ def view_shared_report(report_id):
     # ── 7. Render visualise.html with all the pieces ───────────
     return render_template(
         'visualise.html',
+        title=f"{owner_name}'s Dashboard",
         report              = shared,        # so the template knows it’s shared
         user_expenses       = owner_expenses,
         assets_data         = assets_data,
@@ -333,6 +354,7 @@ def view_shared_report(report_id):
         net_income          = net_income,
         run_rate_months     = run_rate_months,
         available_funds     = available_funds
+        
     )
 
 
