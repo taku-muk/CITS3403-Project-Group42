@@ -410,7 +410,7 @@ def view_shared_report(report_id):
 def revoke_report(report_id):
     report = SharedReport.query.get_or_404(report_id)
 
-    if report.sender_id != current_user.id:
+    if report.owner_id != current_user.id:
         flash("❌ You can only revoke reports you shared.", "error")
         return redirect(url_for('main.share_data'))
 
