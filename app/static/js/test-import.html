@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JS Tests</title>
+  <script src="import.js"></script>
+</head>
+<body>
+  <h1>Running JS Tests…</h1>
+  <script>
+    let passed = 0, failed = 0;
+
+    function test(name, fn) {
+      try {
+        fn();
+        console.log(`✅ ${name}`);
+        passed++;
+      } catch (e) {
+        console.error(`❌ ${name}\n   → ${e.message}`);
+        failed++;
+      }
+    }
+
+    function assertEqual(actual, expected) {
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
+      }
+    }
+
+    // 👇 Your tests
+    test('splitCsvLine basic CSV', () => {
+      const result = splitCsvLine('A,B,C');
+      assertEqual(result, ['A', 'B', 'C']);
+    });
+
+    test('splitCsvLine with quoted comma', () => {
+      const result = splitCsvLine('"Name, Here",Item,42');
+      assertEqual(result, ['"Name, Here"', 'Item', '42']);
+    });
+
+    test('parseTagsCell JSON', () => {
+      const input = '{"importance":["Need"],"frequency":"Recurring"}';
+      const result = parseTagsCell(input);
+      assertEqual(result, { importance: ['Need'], frequency: 'Recurring' });
+    });
+
+    test('parseTagsCell delimited', () => {
+      const result = parseTagsCell('need,once-off');
+      assertEqual(result, { importance: ['Need'], frequency: 'Once-off' });
+    });
+
+    test('parseTagsCell malformed input', () => {
+      const result = parseTagsCell('x,y,z');
+      assertEqual(result, {});
+    });
+
+    // Show result
+    document.body.innerHTML += `<p>✅ ${passed} passed, ❌ ${failed} failed</p>`;
+  </script>
+</body>
+</html>
