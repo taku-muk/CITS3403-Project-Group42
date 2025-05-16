@@ -72,7 +72,9 @@
           <div class="font-medium">{{ tx.name }}</div>
           <div class="text-xs text-gray-500">{{ tx.type|capitalize }}</div>
         </div>
-        <div class="font-semibold">${{ '%.2f'|format(tx.amount) }}</div>
+        <div class="font-medium">
+          {{ '+' if tx.type == 'income' else '−' }}${{ '%.2f'|format(tx.amount) }}
+        </div>
       </li>
     {% else %}
       <li class="py-2 text-gray-500">No transactions to display.</li>
